@@ -231,3 +231,4 @@
 /data/Documents/ASP DOTNET API/Project/obj/Debug/net10.0/Project.csproj.Up2Date
 /data/Documents/ASP DOTNET API/Project/obj/Debug/net10.0/compressed/ysx2oxe1dh-{0}-ul3dfhxpex-ul3dfhxpex.gz
 /data/Documents/ASP DOTNET API/Project/obj/Debug/net10.0/compressed/1vk2mq5i0j-{0}-sh93s9jvvx-sh93s9jvvx.gz
+/data/Documents/ASP DOTNET API/Project/obj/Debug/net10.0/Project.sourcelink.json
