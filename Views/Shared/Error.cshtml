@@ -1,0 +1,42 @@
+﻿@model ErrorViewModel
+@{
+    ViewData["Title"] = "Something went wrong";
+}
+
+<section class="ph-section" style="min-height:70vh;display:grid;place-items:center;">
+    <div class="ph-container" style="max-width:620px;text-align:center;">
+
+        <div class="ph-card ph-card-pad ph-reveal">
+            <div class="ph-card-icon is-rose" style="margin-inline:auto;">
+                <i class="bi bi-exclamation-triangle"></i>
+            </div>
+
+            <h1 style="font-size:1.8rem;">Something went wrong</h1>
+            <p>
+                We hit an unexpected error while processing your request. The incident has been logged
+                &mdash; please try again, and contact the administrator if it persists.
+            </p>
+
+            @if (Model.ShowRequestId)
+            {
+                <div class="ph-alert is-info" style="text-align:left;">
+                    <i class="bi bi-fingerprint"></i>
+                    <div>
+                        <strong>Request ID</strong>
+                        <code>@Model.RequestId</code>
+                    </div>
+                </div>
+            }
+
+            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                <a class="ph-btn ph-btn-primary" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-house-door"></i> Back to home
+                </a>
+                <a class="ph-btn ph-btn-outline" asp-controller="Dashboard" asp-action="Index">
+                    <i class="bi bi-speedometer2"></i> Go to dashboard
+                </a>
+            </div>
+        </div>
+
+    </div>
+</section>

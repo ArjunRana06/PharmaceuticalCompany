@@ -1,0 +1,78 @@
+@model Project.Models.DrugRecall
+
+@{
+    ViewData["Title"] = "Edit Recall";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="ph-page-head">
+    <div>
+        <h2>Edit medicine recall</h2>
+        <p>Update recall <strong>@Model.Id</strong>. Changes will be submitted for approval.</p>
+    </div>
+    <a class="ph-btn ph-btn-ghost" asp-action="Details" asp-route-id="@Model.Id"><i class="bi bi-arrow-left"></i> Back to details</a>
+</div>
+
+<div class="ph-panel ph-reveal" style="max-width:720px;">
+    <form method="post" asp-action="Edit" asp-route-id="@Model.Id">
+        @Html.AntiForgeryToken()
+
+        <div class="ph-field">
+            <label class="ph-label" for="DrugName">Medicine name <span class="ph-req">*</span></label>
+            <input class="ph-input" id="DrugName" name="DrugName" asp-for="DrugName" required />
+        </div>
+
+        <div class="ph-field">
+            <label class="ph-label" for="SideEffects">Side effects</label>
+            <textarea class="ph-input" id="SideEffects" name="SideEffects" asp-for="SideEffects" rows="3"></textarea>
+        </div>
+
+        <div class="ph-field">
+            <label class="ph-label" for="BatchNumber">Batch number</label>
+            <input class="ph-input" id="BatchNumber" name="BatchNumber" asp-for="BatchNumber" />
+        </div>
+
+        <div class="ph-field">
+            <label class="ph-label" for="Reason">Reason for recall <span class="ph-req">*</span></label>
+            <textarea class="ph-input" id="Reason" name="Reason" asp-for="Reason" rows="3" required></textarea>
+        </div>
+
+        <div class="ph-field">
+            <label class="ph-label" for="RecallDate">Recall date <span class="ph-req">*</span></label>
+            <input class="ph-input" id="RecallDate" name="RecallDate" asp-for="RecallDate" type="datetime-local" required />
+        </div>
+
+        <div class="ph-field">
+            <label class="ph-label" for="RecallLevel">Recall level</label>
+            <select class="ph-select" id="RecallLevel" name="RecallLevel">
+                <option value="">-- Select level --</option>
+                <option value="Class I" selected="@(Model.RecallLevel == "Class I")">Class I</option>
+                <option value="Class II" selected="@(Model.RecallLevel == "Class II")">Class II</option>
+                <option value="Class III" selected="@(Model.RecallLevel == "Class III")">Class III</option>
+            </select>
+        </div>
+
+        <div class="ph-field">
+            <label class="ph-label" for="CompanyId">Company <span class="ph-req">*</span></label>
+            <select class="ph-select" id="CompanyId" name="CompanyId">
+                <option value="">-- Choose company --</option>
+                @foreach (var c in await Db.Companies.OrderBy(c => c.Name).ToListAsync())
+                {
+                    <option value="@c.Id" selected="@(Model.CompanyId == c.Id)">@c.Name</option>
+                }
+            </select>
+        </div>
+
+        <div class="ph-field">
+            <label class="ph-label" for="SourceUrl">Source URL</label>
+            <input class="ph-input" id="SourceUrl" name="SourceUrl" asp-for="SourceUrl" placeholder="https://..." />
+        </div>
+
+        <div class="d-flex gap-2 mt-4">
+            <button class="ph-btn ph-btn-primary ph-btn-lg" type="submit">
+                <i class="bi bi-save"></i> Submit changes
+            </button>
+            <a class="ph-btn ph-btn-ghost ph-btn-lg" asp-action="Details" asp-route-id="@Model.Id">Cancel</a>
+        </div>
+    </form>
+</div>

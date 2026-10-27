@@ -1,0 +1,121 @@
+@model IEnumerable<Project.Models.DdaNotice>
+
+@{
+    ViewData["Title"] = "DDA Notices";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var notices = Model?.ToList() ?? new List<Project.Models.DdaNotice>();
+    var search = (ViewBag.Search as string) ?? string.Empty;
+    var type = (ViewBag.Type as string) ?? string.Empty;
+    var types = (ViewBag.Types as List<string>) ?? new List<string>();
+}
+
+<div class="ph-page-head">
+    <div>
+        <h2>DDA regulatory notices</h2>
+        <p>Published notices and recall alerts from the Drug Administration of Nepal.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <span class="ph-badge is-info">
+            <i class="bi bi-megaphone"></i> @notices.Count notice(s)
+        </span>
+        <a class="ph-btn ph-btn-outline ph-btn-sm" asp-controller="DrugRecalls" asp-action="Index">
+            <i class="bi bi-exclamation-octagon"></i> Recall register
+        </a>
+    </div>
+</div>
+
+<!-- ==================== FILTERS ==================== -->
+<div class="ph-panel ph-reveal" style="margin-bottom:1.25rem;">
+    <form method="get" asp-action="Index" class="d-flex flex-wrap align-items-end gap-3">
+        <div style="flex:1 1 260px;">
+            <label class="ph-label" for="noticeSearch">Search notices</label>
+            <div class="position-relative">
+                <input class="ph-input" style="padding-left:2.4rem;" type="search" id="noticeSearch"
+                       name="search" value="@search" placeholder="Title or description" />
+                <i class="bi bi-search position-absolute" style="left:.9rem;top:50%;transform:translateY(-50%);color:var(--ph-muted);"></i>
+            </div>
+        </div>
+        <div style="flex:0 1 200px;">
+            <label class="ph-label" for="noticeType">Notice type</label>
+            <select class="ph-select" id="noticeType" name="type">
+                <option value="">All types</option>
+                @foreach (var t in types)
+                {
+                    <option value="@t" selected="@(t == type)">@t</option>
+                }
+            </select>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="ph-btn ph-btn-primary ph-btn-sm" type="submit">
+                <i class="bi bi-funnel"></i> Apply
+            </button>
+            <a class="ph-btn ph-btn-ghost ph-btn-sm" asp-action="Index">Reset</a>
+        </div>
+    </form>
+</div>
+
+<!-- ==================== NOTICE LIST ==================== -->
+<div class="ph-table-wrap ph-reveal">
+    <div class="ph-table-head">
+        <div>
+            <h3>Published notices</h3>
+            <p>Showing @notices.Count notice(s)</p>
+        </div>
+        <span class="ph-badge is-info">@notices.Count</span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="ph-table">
+            <thead>
+                <tr>
+                    <th style="width:120px;">Published</th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th style="width:130px;">Type</th>
+                    <th style="width:120px;">Source</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (notices.Any())
+                {
+                    foreach (var notice in notices)
+                    {
+                        <tr>
+                            <td><strong style="font-size:.86rem;">@notice.NoticeDate.ToString("dd MMM yyyy")</strong></td>
+                            <td><strong>@notice.Title</strong></td>
+                            <td style="max-width:360px;font-size:.86rem;">@notice.Description</td>
+                            <td>
+                                <span class="ph-badge is-info">@(string.IsNullOrEmpty(notice.NoticeType) ? "General" : notice.NoticeType)</span>
+                            </td>
+                            <td>
+                                @if (!string.IsNullOrEmpty(notice.SourceUrl))
+                                {
+                                    <a href="@notice.SourceUrl" target="_blank" rel="noopener"
+                                       class="ph-btn ph-btn-outline ph-btn-sm">
+                                        <i class="bi bi-box-arrow-up-right"></i> Open
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span style="color:var(--ph-muted);font-size:.82rem;">n/a</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5">
+                            <div class="ph-empty">
+                                <i class="bi bi-inbox"></i>
+                                <h4>No notices found</h4>
+                                <p class="mb-0">No regulatory notices match the current filters.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

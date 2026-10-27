@@ -1,0 +1,265 @@
+@model IEnumerable<object>
+
+@{
+    ViewData["Title"] = "Drug Recalls";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var drug = (ViewBag.Drug as string) ?? string.Empty;
+    var year = ViewBag.Year as int?;
+    var recallDate = ViewBag.RecallDate as DateTime?;
+    var recalls = Model?.ToList() ?? new List<object>();
+}
+
+<div class="ph-page-head">
+    <div>
+        <h2>Drug recall register</h2>
+        <p>Use the cascading search to filter approved recalls. Full details open on selection.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <span class="ph-badge is-info">
+            <i class="bi bi-info-circle"></i> @(User.IsInRole("Admin") ? "All approved recalls" : "My approved recalls")
+        </span>
+        <a class="ph-btn ph-btn-outline ph-btn-sm" asp-action="Create">
+            <i class="bi bi-plus-lg"></i> Add recall
+        </a>
+        @if (User.IsInRole("Admin"))
+        {
+            <a class="ph-btn ph-btn-primary ph-btn-sm" asp-action="Pending">
+                <i class="bi bi-clipboard-check"></i> Pending approvals
+            </a>
+        }
+    </div>
+</div>
+
+<!-- ==================== CASCADING SEARCH ==================== -->
+<div class="ph-panel ph-reveal" style="margin-bottom:1.25rem;">
+    <form id="cascadeForm" class="d-flex flex-wrap align-items-end gap-3">
+        <div style="flex:1 1 280px;min-width:200px;">
+            <label class="ph-label" for="cascadeDrug">Select medicine</label>
+            <select class="ph-select" id="cascadeDrug" name="drug">
+                <option value="">-- Choose a medicine --</option>
+            </select>
+        </div>
+        <div style="flex:0 1 180px;min-width:150px;">
+            <label class="ph-label" for="cascadeYear">Year</label>
+            <select class="ph-select" id="cascadeYear" name="year" disabled>
+                <option value="">-- Year --</option>
+            </select>
+        </div>
+        <div style="flex:0 1 200px;min-width:160px;">
+            <label class="ph-label" for="cascadeDate">Recall date</label>
+            <select class="ph-select" id="cascadeDate" name="recallDate" disabled>
+                <option value="">-- Date --</option>
+            </select>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="ph-btn ph-btn-primary ph-btn-sm" type="submit" id="btnApply" disabled>
+                <i class="bi bi-search"></i> Show results
+            </button>
+            <a class="ph-btn ph-btn-ghost ph-btn-sm" id="btnReset">Reset</a>
+        </div>
+    </form>
+</div>
+
+@if ((bool)(ViewBag.ShowAll ?? false) || !string.IsNullOrEmpty(drug) || year.HasValue || recallDate.HasValue)
+{
+    <!-- ==================== BASIC RESULTS ==================== -->
+    <div class="ph-table-wrap ph-reveal">
+        <div class="ph-table-head">
+            <div>
+                <h3>Recall events</h3>
+                <p>Showing @recalls.Count basic record(s)</p>
+            </div>
+            <span class="ph-badge is-info">@recalls.Count</span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="ph-table">
+                <thead>
+                    <tr>
+                        <th style="width:120px;">Date</th>
+                        <th>Recalled product</th>
+                        <th>Batch</th>
+                        <th>Company</th>
+                        <th>Reason</th>
+                        <th style="width:140px;">Level</th>
+                        <th style="width:160px;">Full details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (recalls.Any())
+                    {
+                        foreach (var r in recalls)
+                        {
+                            var id = (int)r.GetType().GetProperty("Id")!.GetValue(r)!;
+                            var drugName = (string)r.GetType().GetProperty("DrugName")!.GetValue(r)!;
+                            var batch = (string?)r.GetType().GetProperty("BatchNumber")!.GetValue(r);
+                            var recallDt = (DateTime)r.GetType().GetProperty("RecallDate")!.GetValue(r);
+                            var company = (string?)r.GetType().GetProperty("CompanyName")!.GetValue(r);
+                            var reason = (string?)r.GetType().GetProperty("Reason")!.GetValue(r);
+                            var level = (string?)r.GetType().GetProperty("RecallLevel")!.GetValue(r);
+
+                            <tr>
+                                <td>
+                                    <strong style="font-size:.86rem;">@recallDt.ToString("dd MMM yyyy")</strong>
+                                </td>
+                                <td><strong>@drugName</strong></td>
+                                <td>
+                                    <span class="ph-badge is-muted">@(string.IsNullOrEmpty(batch) ? "n/a" : batch)</span>
+                                </td>
+                                <td>@company</td>
+                                <td style="max-width:300px;font-size:.86rem;">@reason</td>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(level))
+                                    {
+                                        <span class="ph-badge is-warning">@level</span>
+                                    }
+                                    else
+                                    {
+                                        <span style="color:var(--ph-muted);font-size:.82rem;">n/a</span>
+                                    }
+                                </td>
+                                <td class="d-flex gap-1">
+                                    <a asp-action="Details" asp-route-id="@id"
+                                       class="ph-btn ph-btn-outline ph-btn-sm">
+                                        <i class="bi bi-file-earmark-text"></i> View full
+                                    </a>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <form asp-action="Delete" asp-route-id="@id" method="post" style="display:inline;">
+                                            @Html.AntiForgeryToken()
+                                            <button class="ph-btn ph-btn-danger ph-btn-sm" type="submit" onclick="return confirm('Delete this recall?')">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7">
+                                <div class="ph-empty">
+                                    <i class="bi bi-shield-check"></i>
+                                    <h4>No recalls found</h4>
+                                    <p class="mb-0">No approved recall records match the current selection.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}
+else
+{
+    <div class="ph-empty" style="text-align:center;padding:3rem;">
+        <i class="bi bi-search" style="font-size:3rem;color:var(--ph-muted);margin-bottom:1rem;display:block;"></i>
+        <h4>Select a medicine to begin</h4>
+        <p class="mb-0">Choose a medicine, then a year, then a recall date to view basic details.</p>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        const drugEl = document.getElementById('cascadeDrug');
+        const yearEl = document.getElementById('cascadeYear');
+        const dateEl = document.getElementById('cascadeDate');
+        const btnApply = document.getElementById('btnApply');
+        const btnReset = document.getElementById('btnReset');
+
+        let selectedDrug = '';
+        let selectedYear = null;
+
+        async function loadDrugs() {
+            const res = await fetch('/DrugRecalls/GetDrugs');
+            const drugs = await res.json();
+            drugEl.innerHTML = '<option value="">-- Choose a medicine --</option>' +
+                drugs.map(d => `<option value="${d}" ${d === @(Json.Serialize(drug)) ? 'selected' : ''}>${d}</option>`).join('');
+        if (@(string.IsNullOrEmpty(drug) ? "false" : "true")) {
+            selectedDrug = @(Json.Serialize(drug));
+            loadYears(selectedDrug);
+        }
+    }
+
+    async function loadYears(drug) {
+        yearEl.disabled = false;
+        dateEl.disabled = true;
+        btnApply.disabled = true;
+        dateEl.innerHTML = '<option value="">-- Date --</option>';
+        yearEl.innerHTML = '<option value="">-- Year --</option>';
+
+        const res = await fetch(`/DrugRecalls/GetYears?drug=${encodeURIComponent(drug)}`);
+        const years = await res.json();
+        yearEl.innerHTML += years.map(y => `<option value="${y}" ${(year.HasValue && y == year.Value) ? 'selected' : ''}>${y}</option>`).join('');
+
+        @if (year.HasValue)
+        {
+            <text>
+            selectedYear = @year.Value;
+            yearEl.value = @year.Value;
+            loadDates(selectedDrug, selectedYear);
+            </text>
+        }
+    }
+
+    async function loadDates(drug, year) {
+        dateEl.disabled = false;
+        const res = await fetch(`/DrugRecalls/GetRecallDates?drug=${encodeURIComponent(drug)}&year=${year}`);
+        const dates = await res.json();
+        dateEl.innerHTML = '<option value="">-- Date --</option>' +
+            dates.map(d => `<option value="${d.date}" ${d.date === @(recallDate.HasValue ? Json.Serialize(recallDate.Value.ToString("yyyy-MM-dd")) : "\"\"") ? 'selected' : ''}>${d.label}</option>`).join('');
+
+        @if (recallDate.HasValue)
+        {
+            <text>
+            dateEl.value = @Html.Raw(Json.Serialize(recallDate.Value.ToString("yyyy-MM-dd")));
+            btnApply.disabled = false;
+            </text>
+        }
+    }
+
+        drugEl.addEventListener('change', async () => {
+            selectedDrug = drugEl.value;
+            yearEl.disabled = !selectedDrug;
+            dateEl.disabled = true;
+            btnApply.disabled = true;
+            yearEl.innerHTML = '<option value="">-- Year --</option>';
+            dateEl.innerHTML = '<option value="">-- Date --</option>';
+
+            if (selectedDrug) {
+                await loadYears(selectedDrug);
+            }
+        });
+
+        yearEl.addEventListener('change', async () => {
+            selectedYear = yearEl.value;
+            dateEl.disabled = !selectedYear;
+            btnApply.disabled = !selectedYear;
+            dateEl.innerHTML = '<option value="">-- Date --</option>';
+
+            if (selectedYear && selectedDrug) {
+                await loadDates(selectedDrug, selectedYear);
+            }
+        });
+
+        dateEl.addEventListener('change', () => {
+            btnApply.disabled = !dateEl.value;
+        });
+
+        btnReset.addEventListener('click', (e) => {
+            e.preventDefault();
+            drugEl.value = '';
+            yearEl.disabled = true;
+            dateEl.disabled = true;
+            btnApply.disabled = true;
+            yearEl.innerHTML = '<option value="">-- Year --</option>';
+            dateEl.innerHTML = '<option value="">-- Date --</option>';
+            window.location.href = '/DrugRecalls';
+        });
+
+        loadDrugs();
+    </script>
+}

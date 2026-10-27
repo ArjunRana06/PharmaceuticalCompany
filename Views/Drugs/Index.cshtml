@@ -1,0 +1,118 @@
+@model IEnumerable<Project.Models.Drug>
+
+@{
+    ViewData["Title"] = "Drug Database";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var drugs = Model?.ToList() ?? new List<Project.Models.Drug>();
+    var search = (ViewBag.Search as string) ?? string.Empty;
+    var form = (ViewBag.Form as string) ?? string.Empty;
+    var forms = (ViewBag.Forms as List<string>) ?? new List<string>();
+}
+
+<div class="ph-page-head">
+    <div>
+        <h2>Drug database</h2>
+        <p>Registered products mapped to their manufacturing company and dosage form.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <span class="ph-badge">
+            <i class="bi bi-capsule-pill"></i> @drugs.Count product(s)
+        </span>
+        <a class="ph-btn ph-btn-outline ph-btn-sm" asp-controller="DrugCategories" asp-action="Index">
+            <i class="bi bi-journal-bookmark"></i> Category rules
+        </a>
+    </div>
+</div>
+
+<!-- ==================== FILTERS ==================== -->
+<div class="ph-panel ph-reveal" style="margin-bottom:1.25rem;">
+    <form method="get" asp-action="Index" class="d-flex flex-wrap align-items-end gap-3">
+        <div style="flex:1 1 260px;">
+            <label class="ph-label" for="drugSearch">Search products</label>
+            <div class="position-relative">
+                <input class="ph-input" style="padding-left:2.4rem;" type="search" id="drugSearch"
+                       name="search" value="@search" placeholder="Brand, generic or company" />
+                <i class="bi bi-search position-absolute" style="left:.9rem;top:50%;transform:translateY(-50%);color:var(--ph-muted);"></i>
+            </div>
+        </div>
+        <div style="flex:0 1 220px;">
+            <label class="ph-label" for="drugForm">Dosage form</label>
+            <select class="ph-select" id="drugForm" name="form">
+                <option value="">All forms</option>
+                @foreach (var f in forms)
+                {
+                    <option value="@f" selected="@(f == form)">@f</option>
+                }
+            </select>
+        </div>
+        <div class="d-flex gap-2">
+            <button class="ph-btn ph-btn-primary ph-btn-sm" type="submit">
+                <i class="bi bi-funnel"></i> Apply
+            </button>
+            <a class="ph-btn ph-btn-ghost ph-btn-sm" asp-action="Index">Reset</a>
+        </div>
+    </form>
+</div>
+
+<!-- ==================== PRODUCT LIST ==================== -->
+<div class="ph-table-wrap ph-reveal">
+    <div class="ph-table-head">
+        <div>
+            <h3>Registered products</h3>
+            <p>Showing @drugs.Count product(s)</p>
+        </div>
+        <span class="ph-badge">@drugs.Count</span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="ph-table">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Generic</th>
+                    <th>Dosage form</th>
+                    <th>Strength</th>
+                    <th>Manufacturer</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (drugs.Any())
+                {
+                    foreach (var drug in drugs)
+                    {
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="ph-avatar is-soft" style="width:34px;height:34px;">
+                                        <i class="bi bi-capsule"></i>
+                                    </span>
+                                    <strong>@drug.DrugName</strong>
+                                </div>
+                            </td>
+                            <td>@drug.GenericName</td>
+                            <td><span class="ph-badge">@drug.DosageForm</span></td>
+                            <td>@(string.IsNullOrEmpty(drug.Strength) ? "—" : drug.Strength)</td>
+                            <td>
+                                <a asp-controller="Company" asp-action="Index" style="font-weight:600;">
+                                    @(drug.Company?.Name ?? "Unassigned")
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5">
+                            <div class="ph-empty">
+                                <i class="bi bi-capsule"></i>
+                                <h4>No products found</h4>
+                                <p class="mb-0">No registered products match the current filters.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,204 @@
+@{
+    var isAuthenticated = User.Identity?.IsAuthenticated == true;
+    var userName = isAuthenticated ? (User.Identity?.Name ?? "Administrator") : "Guest";
+    var initials = string.IsNullOrWhiteSpace(userName)
+        ? "A"
+        : userName.Trim()[..1].ToUpperInvariant();
+    var currentController = (ViewContext.RouteData.Values["controller"]?.ToString() ?? "").ToLowerInvariant();
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - PharmaCore Console</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/pharma.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Project.styles.css" asp-append-version="true" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230d9488'/%3E%3Crect x='36' y='16' width='28' height='68' rx='14' fill='%23fff'/%3E%3Cpath d='M36 50h28v20a14 14 0 01-28 0z' fill='%232dd4bf'/%3E%3C/svg%3E" />
+    <script>document.documentElement.classList.add('ph-js');</script>
+</head>
+<body>
+
+<div class="ph-admin">
+
+    <!-- ==================== SIDEBAR ==================== -->
+    <aside class="ph-sidebar" id="phSidebar">
+
+        <a class="ph-sidebar-brand" asp-controller="@(User.IsInRole("Admin") ? "Dashboard" : "DrugRecalls")" asp-action="Index">
+            <span class="ph-brand-mark" style="width:38px;height:38px;border-radius:12px;">
+                <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" style="width:23px;height:23px;">
+                    <path d="M12 2.6c3.3 0 6 2.4 6 5.3v8.2c0 2.9-2.7 5.3-6 5.3s-6-2.4-6-5.3V7.9c0-2.9 2.7-5.3 6-5.3Z" fill="#ffffff" fill-opacity=".95"/>
+                    <path d="M6.05 11.6h11.9v4.5c0 2.9-2.66 5.3-5.95 5.3s-5.95-2.4-5.95-5.3v-4.5Z" fill="#5eead4"/>
+                </svg>
+            </span>
+            <span>
+                PharmaCore
+                <small>Console</small>
+            </span>
+        </a>
+
+        @if (User.IsInRole("Admin"))
+        {
+            <div class="ph-sidebar-label">Overview</div>
+            <ul class="ph-sidebar-nav">
+                <li>
+                    <a asp-controller="Dashboard" asp-action="Index" class="@(currentController == "dashboard" ? "is-active" : "")">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                </li>
+            </ul>
+        }
+
+        <div class="ph-sidebar-label">Registry</div>
+        <ul class="ph-sidebar-nav">
+            @if (User.IsInRole("Admin"))
+            {
+                <li>
+                    <a asp-controller="Company" asp-action="Index" class="@(currentController == "company" ? "is-active" : "")">
+                        <i class="bi bi-buildings"></i> Companies
+                    </a>
+                </li>
+                <li>
+                    <a asp-controller="Drugs" asp-action="Index" class="@(currentController == "drugs" ? "is-active" : "")">
+                        <i class="bi bi-capsule"></i> Drugs
+                    </a>
+                </li>
+            }
+            <li>
+                <a asp-controller="DrugRecalls" asp-action="Index" class="@(currentController == "drugrecalls" ? "is-active" : "")">
+                    <i class="bi bi-exclamation-octagon"></i> Drug Recalls
+                </a>
+            </li>
+            @if (User.IsInRole("Admin"))
+            {
+                <li>
+                    <a asp-controller="DdaNotices" asp-action="Index" class="@(currentController == "ddanotices" ? "is-active" : "")">
+                        <i class="bi bi-megaphone"></i> DDA Notices
+                    </a>
+                </li>
+            }
+        </ul>
+
+        @if (User.IsInRole("Admin"))
+        {
+            <div class="ph-sidebar-label">Compliance</div>
+            <ul class="ph-sidebar-nav">
+                <li>
+                    <a asp-controller="DrugCategories" asp-action="Index" class="@(currentController == "drugcategories" ? "is-active" : "")">
+                        <i class="bi bi-journal-bookmark"></i> Category Rules
+                    </a>
+                </li>
+            </ul>
+        }
+
+        <div class="ph-sidebar-label">Administration</div>
+        <ul class="ph-sidebar-nav">
+            @if (User.IsInRole("Admin"))
+            {
+                <li>
+                    <a asp-controller="Users" asp-action="Index" class="@(currentController == "users" ? "is-active" : "")">
+                        <i class="bi bi-people"></i> Users
+                    </a>
+                </li>
+                <li>
+                    <a asp-controller="DrugRecalls" asp-action="Pending" class="@(currentController == "drugrecalls" && ViewContext.RouteData.Values["action"]?.ToString() == "Pending" ? "is-active" : "")">
+                        <i class="bi bi-clipboard-check"></i> Recall approvals
+                    </a>
+                </li>
+            } else {
+                <li>
+                    <a asp-controller="DrugRecalls" asp-action="Create" class="@(currentController == "drugrecalls" && ViewContext.RouteData.Values["action"]?.ToString() == "Create" ? "is-active" : "")">
+                        <i class="bi bi-plus-circle"></i> Add Recall
+                    </a>
+                </li>
+            }
+            <li>
+                <a asp-controller="Home" asp-action="Privacy">
+                    <i class="bi bi-shield-lock"></i> Privacy policy
+                </a>
+            </li>
+        </ul>
+
+        <div class="ph-sidebar-foot">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <span class="ph-avatar" style="width:34px;height:34px;">@initials</span>
+                <div>
+                    <strong style="display:block;color:#fff;font-size:.85rem;">@userName</strong>
+                    <span style="font-size:.74rem;">@(User.IsInRole("Admin") ? "Administrator (Level 2)" : "User (Level 1)")</span>
+                </div>
+            </div>
+            @if (User.Identity?.IsAuthenticated == true)
+            {
+                <form asp-controller="Home" asp-action="Logout" method="post">
+                    @Html.AntiForgeryToken()
+                    <button type="submit" class="ph-btn ph-btn-light ph-btn-sm ph-btn-block">
+                        <i class="bi bi-box-arrow-left"></i> Sign out
+                    </button>
+                </form>
+            }
+            else
+            {
+                <a class="ph-btn ph-btn-light ph-btn-sm ph-btn-block" asp-controller="Home" asp-action="Login">
+                    <i class="bi bi-box-arrow-in-right"></i> Sign in
+                </a>
+            }
+        </div>
+    </aside>
+
+    <div class="ph-sidebar-backdrop" id="phSidebarBackdrop"></div>
+
+    <!-- ==================== MAIN ==================== -->
+    <div class="ph-admin-main">
+
+        <header class="ph-topbar">
+            <div class="d-flex align-items-center gap-3">
+                <button class="ph-icon-btn ph-sidebar-toggle" type="button" id="phSidebarToggle" aria-label="Toggle sidebar">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="ph-topbar-title">
+                    <h1>@ViewData["Title"]</h1>
+                    <p>Pharmaceutical Management System</p>
+                </div>
+            </div>
+
+            <div class="ph-topbar-tools">
+                <div class="ph-user-chip d-none d-md-flex">
+                    <span class="ph-avatar">@initials</span>
+                    <div>
+                        <strong>@userName</strong>
+                        <span>@(User.IsInRole("Admin") ? "Administrator (Level 2)" : "User (Level 1)")</span>
+                    </div>
+                </div>
+                <button class="ph-icon-btn" type="button" title="Notifications">
+                    <i class="bi bi-bell"></i>
+                    <span class="ph-dot"></span>
+                </button>
+                <a class="ph-icon-btn" asp-controller="Home" asp-action="Index" title="Public site">
+                    <i class="bi bi-box-arrow-up-right"></i>
+                </a>
+            </div>
+        </header>
+
+        <main class="ph-content" role="main">
+            @RenderBody()
+        </main>
+
+        <footer class="ph-admin-foot">
+            <span>&copy; @DateTime.Now.Year PharmaCore. All rights reserved.</span>
+            <span>Regulatory-grade pharmaceutical intelligence</span>
+        </footer>
+
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script src="~/js/pharma.js" asp-append-version="true"></script>
+@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

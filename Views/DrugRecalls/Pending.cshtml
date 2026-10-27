@@ -1,0 +1,81 @@
+@model List<Project.Models.DrugRecall>
+
+@{
+    ViewData["Title"] = "Pending Approvals";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="ph-page-head">
+    <div>
+        <h2>Pending recall approvals</h2>
+        <p>Review and approve or reject submitted recall data.</p>
+    </div>
+    <a class="ph-btn ph-btn-ghost" asp-action="Index"><i class="bi bi-arrow-left"></i> Back to register</a>
+</div>
+
+<div class="ph-table-wrap ph-reveal">
+    <div class="ph-table-head">
+        <div>
+            <h3>Pending submissions</h3>
+            <p>@Model.Count submission(s) awaiting review</p>
+        </div>
+        <span class="ph-badge is-warning">@Model.Count</span>
+    </div>
+
+    <div class="table-responsive">
+        <table class="ph-table">
+            <thead>
+                <tr>
+                    <th style="width:120px;">Submitted</th>
+                    <th>Medicine</th>
+                    <th>Batch</th>
+                    <th>Recall date</th>
+                    <th>Company</th>
+                    <th>Submitted by</th>
+                    <th style="width:200px;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Any())
+                {
+                    foreach (var r in Model)
+                    {
+                        <tr>
+                            <td>@r.SubmittedAt?.ToString("dd MMM yyyy HH:mm")</td>
+                            <td><strong>@r.DrugName</strong></td>
+                            <td>@(string.IsNullOrEmpty(r.BatchNumber) ? "n/a" : r.BatchNumber)</td>
+                            <td>@r.RecallDate.ToString("dd MMM yyyy")</td>
+                            <td>@(r.Company?.Name ?? "Unassigned")</td>
+                            <td>@(r.SubmittedByUser?.Name ?? "Unknown")</td>
+                            <td>
+                                <form asp-action="Approve" asp-route-id="@r.Id" method="post" style="display:inline;margin-bottom:.25rem;">
+                                    @Html.AntiForgeryToken()
+                                    <button class="ph-btn ph-btn-success ph-btn-sm ph-btn-block" type="submit">
+                                        Approve
+                                    </button>
+                                </form>
+                                <form asp-action="Reject" asp-route-id="@r.Id" method="post" style="display:inline;">
+                                    @Html.AntiForgeryToken()
+                                    <input type="text" name="rejectionReason" placeholder="Reason" class="ph-input ph-btn-sm" style="width:120px;display:inline-block;" />
+                                    <button class="ph-btn ph-btn-danger ph-btn-sm" type="submit">Reject</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7">
+                            <div class="ph-empty">
+                                <i class="bi bi-check2-circle"></i>
+                                <h4>No pending submissions</h4>
+                                <p class="mb-0">All recall submissions have been reviewed.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,97 @@
+@model Project.Models.Company
+
+@{
+    ViewData["Title"] = "Delete Company";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="ph-page-head">
+    <div>
+        <h2>Delete company</h2>
+        <p>This action permanently removes a record from the regulatory registry.</p>
+    </div>
+    <a class="ph-btn ph-btn-outline ph-btn-sm" asp-controller="Company" asp-action="Index">
+        <i class="bi bi-arrow-left"></i> Back to list
+    </a>
+</div>
+
+<div class="ph-panel ph-reveal" style="max-width:760px;border-color:#fecdd3;">
+
+    <div class="ph-alert is-danger">
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        <div>
+            <strong>Warning &mdash; permanent deletion</strong>
+            Are you sure you want to delete this company? Linked drug and recall records may be affected.
+        </div>
+    </div>
+
+    <div class="ph-panel-head">
+        <div>
+            <h3>Record to be removed</h3>
+            <p>Review the details before continuing.</p>
+        </div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="ph-field" style="margin-bottom:0;">
+                <span class="ph-label">Company name</span>
+                <div class="ph-input" style="background:var(--ph-canvas-2);">@Model.Name</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="ph-field" style="margin-bottom:0;">
+                <span class="ph-label">Province</span>
+                <div class="ph-input" style="background:var(--ph-canvas-2);">@Model.Province</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="ph-field" style="margin-bottom:0;">
+                <span class="ph-label">District</span>
+                <div class="ph-input" style="background:var(--ph-canvas-2);">@Model.District</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="ph-field" style="margin-bottom:0;">
+                <span class="ph-label">City / location</span>
+                <div class="ph-input" style="background:var(--ph-canvas-2);">@Model.City</div>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <div class="ph-field" style="margin-bottom:0;">
+                <span class="ph-label">Street address</span>
+                <div class="ph-input" style="background:var(--ph-canvas-2);">@Model.Address</div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="ph-field" style="margin-bottom:0;">
+                <span class="ph-label">Phone</span>
+                <div class="ph-input" style="background:var(--ph-canvas-2);">@Model.Phone</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="ph-field" style="margin-bottom:0;">
+                <span class="ph-label">Export capability</span>
+                <div class="ph-input" style="background:var(--ph-canvas-2);">
+                    @(string.IsNullOrEmpty(Model.ExportCapability) ? "Not recorded" : Model.ExportCapability)
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="ph-field" style="margin-bottom:0;">
+                <span class="ph-label">Documented recall events</span>
+                <div class="ph-input" style="background:var(--ph-canvas-2);">@Model.DocumentedRecallEvents</div>
+            </div>
+        </div>
+    </div>
+
+    <form asp-action="Delete" method="post" class="d-flex flex-wrap gap-2 mt-4 pt-3" style="border-top:1px solid var(--ph-line);">
+        @Html.AntiForgeryToken()
+        <input type="hidden" asp-for="Id" />
+
+        <button type="submit" class="ph-btn ph-btn-danger ph-btn-sm">
+            <i class="bi bi-trash"></i> Yes, delete company
+        </button>
+        <a asp-action="Index" class="ph-btn ph-btn-ghost ph-btn-sm">Cancel</a>
+    </form>
+</div>

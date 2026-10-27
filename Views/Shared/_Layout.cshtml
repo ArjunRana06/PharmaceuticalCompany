@@ -1,0 +1,181 @@
+﻿@{
+    var userName = User.Identity?.Name;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - PharmaCore</title>
+    <meta name="description" content="PharmaCore — pharmaceutical company, drug registry, recall tracking and regulatory notice management." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/pharma.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/Project.styles.css" asp-append-version="true" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='22' fill='%230d9488'/%3E%3Crect x='36' y='16' width='28' height='68' rx='14' fill='%23fff'/%3E%3Cpath d='M36 50h28v20a14 14 0 01-28 0z' fill='%232dd4bf'/%3E%3C/svg%3E" />
+    <script>document.documentElement.classList.add('ph-js');</script>
+</head>
+<body>
+
+    <!-- ================= ANNOUNCEMENT BAR ================= -->
+    <div class="ph-announce">
+        <div class="ph-container ph-announce-inner">
+            <span>
+                <i class="ph-pulse-dot"></i>
+                DDA regulatory notices are synced daily &mdash; stay compliant with PharmaCore
+            </span>
+            <span>
+                Emergency recall hotline &nbsp;
+                <a href="tel:+97715000000">+977 1 500 0000</a>
+            </span>
+        </div>
+    </div>
+
+    <!-- ================= HEADER ================= -->
+    <header class="ph-header">
+        <div class="ph-container ph-nav">
+
+            <a class="ph-brand" asp-controller="Home" asp-action="Index">
+                <span class="ph-brand-mark">
+                    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                        <path d="M12 2.6c3.3 0 6 2.4 6 5.3v8.2c0 2.9-2.7 5.3-6 5.3s-6-2.4-6-5.3V7.9c0-2.9 2.7-5.3 6-5.3Z" fill="#ffffff" fill-opacity=".95"/>
+                        <path d="M6.05 11.6h11.9v4.5c0 2.9-2.66 5.3-5.95 5.3s-5.95-2.4-5.95-5.3v-4.5Z" fill="#5eead4"/>
+                        <path d="M12 6.4v5.2" stroke="#0f766e" stroke-width="1.6" stroke-linecap="round"/>
+                        <path d="M9.6 9h4.8" stroke="#0f766e" stroke-width="1.6" stroke-linecap="round"/>
+                    </svg>
+                </span>
+                <span class="ph-brand-text">
+                    PharmaCore
+                    <small>Pharma Management Suite</small>
+                </span>
+            </a>
+
+            <ul class="ph-nav-links" id="mainNav" data-nav-match>
+                <li><a asp-controller="Home" asp-action="Index">Home</a></li>
+                <li><a href="/#platform">Platform</a></li>
+                <li><a href="/#compliance">Compliance</a></li>
+                <li><a href="/#insights">Insights</a></li>
+                <li><a asp-controller="Company" asp-action="Index">Companies</a></li>
+                <li><a asp-controller="Home" asp-action="Privacy">Privacy</a></li>
+            </ul>
+
+            <div class="ph-nav-actions">
+                @if (string.IsNullOrEmpty(userName))
+                {
+                    <a class="ph-btn ph-btn-outline ph-btn-sm" asp-controller="Home" asp-action="Login">
+                        <i class="bi bi-person"></i> Sign in
+                    </a>
+                    <a class="ph-btn ph-btn-primary ph-btn-sm" asp-controller="Home" asp-action="Login">
+                        Get started <i class="bi bi-arrow-right"></i>
+                    </a>
+                }
+                else
+                {
+                    <a class="ph-btn ph-btn-primary ph-btn-sm" asp-controller="Dashboard" asp-action="Index">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                }
+                <button class="ph-nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false">
+                    <span></span>
+                </button>
+            </div>
+
+        </div>
+    </header>
+
+    <!-- ================= MAIN ================= -->
+    <main role="main">
+        @RenderBody()
+    </main>
+
+    <!-- ================= FOOTER ================= -->
+    <footer class="ph-footer">
+        <div class="ph-container">
+            <div class="ph-footer-grid">
+
+                <div>
+                    <a class="ph-brand" asp-controller="Home" asp-action="Index">
+                        <span class="ph-brand-mark">
+                            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                                <path d="M12 2.6c3.3 0 6 2.4 6 5.3v8.2c0 2.9-2.7 5.3-6 5.3s-6-2.4-6-5.3V7.9c0-2.9 2.7-5.3 6-5.3Z" fill="#ffffff" fill-opacity=".95"/>
+                                <path d="M6.05 11.6h11.9v4.5c0 2.9-2.66 5.3-5.95 5.3s-5.95-2.4-5.95-5.3v-4.5Z" fill="#5eead4"/>
+                            </svg>
+                        </span>
+                        <span class="ph-brand-text">
+                            PharmaCore
+                            <small>Pharma Management Suite</small>
+                        </span>
+                    </a>
+                    <p style="margin-top:1rem;max-width:340px;">
+                        A unified platform for pharmaceutical company directories, drug registration
+                        records, recall tracking and regulatory compliance.
+                    </p>
+
+                    <form class="ph-newsletter" onsubmit="return false;">
+                        <input type="email" placeholder="Email for regulatory updates" aria-label="Email address" />
+                        <button class="ph-btn ph-btn-primary ph-btn-sm" type="submit">
+                            <i class="bi bi-send"></i>
+                        </button>
+                    </form>
+
+                    <div class="ph-social">
+                        <a href="#" aria-label="Facebook"><i class="bi bi-facebook"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="bi bi-linkedin"></i></a>
+                        <a href="#" aria-label="X"><i class="bi bi-twitter-x"></i></a>
+                        <a href="#" aria-label="YouTube"><i class="bi bi-youtube"></i></a>
+                    </div>
+                </div>
+
+                <div>
+                    <h4>Platform</h4>
+                    <ul>
+                        <li><a href="/#platform"><i class="bi bi-chevron-right"></i> Company Registry</a></li>
+                        <li><a href="/#platform"><i class="bi bi-chevron-right"></i> Drug Database</a></li>
+                        <li><a href="/#platform"><i class="bi bi-chevron-right"></i> Recall Tracker</a></li>
+                        <li><a href="/#platform"><i class="bi bi-chevron-right"></i> Notice Board</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4>Compliance</h4>
+                    <ul>
+                        <li><a href="/#compliance"><i class="bi bi-chevron-right"></i> GMP Audits</a></li>
+                        <li><a href="/#compliance"><i class="bi bi-chevron-right"></i> DDA Notices</a></li>
+                        <li><a href="/#compliance"><i class="bi bi-chevron-right"></i> Batch Traceability</a></li>
+                        <li><a href="/#compliance"><i class="bi bi-chevron-right"></i> Cold Chain</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a asp-controller="Home" asp-action="Index">About us</a></li>
+                        <li><a asp-controller="Company" asp-action="Index">Partner companies</a></li>
+                        <li><a asp-controller="Users" asp-action="Index">Team</a></li>
+                        <li><a asp-controller="Home" asp-action="Privacy">Privacy policy</a></li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <div class="ph-footer-bottom">
+                <span>&copy; @DateTime.Now.Year PharmaCore. All rights reserved.</span>
+                <span>
+                    Built for regulatory accuracy &nbsp;&middot;&nbsp;
+                    <a asp-controller="Home" asp-action="Privacy">Privacy</a> &nbsp;&middot;&nbsp;
+                    <a href="#">Terms of service</a>
+                </span>
+            </div>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/pharma.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

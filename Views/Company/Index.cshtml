@@ -1,0 +1,229 @@
+@model IEnumerable<Project.Models.Company>
+
+@{
+    ViewData["Title"] = "Companies";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var companies = Model?.ToList() ?? new List<Project.Models.Company>();
+
+    string ExportBadge(Company company)
+    {
+        var cap = company.ExportCapability ?? string.Empty;
+        if (cap.StartsWith("Yes", StringComparison.OrdinalIgnoreCase))
+        {
+            return "is-success";
+        }
+
+        if (cap.StartsWith("Export-capable", StringComparison.OrdinalIgnoreCase))
+        {
+            return "is-info";
+        }
+
+        if (cap.StartsWith("Group exporter", StringComparison.OrdinalIgnoreCase))
+        {
+            return "is-info";
+        }
+
+        return "is-muted";
+    }
+
+    string ExportLabel(Company company)
+    {
+        var cap = company.ExportCapability ?? string.Empty;
+        if (cap.StartsWith("Yes", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Export reported";
+        }
+
+        if (cap.StartsWith("Export-capable", StringComparison.OrdinalIgnoreCase))
+        {
+            return "WHO-GMP export";
+        }
+
+        if (cap.StartsWith("Group exporter", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Group exporter";
+        }
+
+        if (cap.Contains("export plans only", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Export plans";
+        }
+
+        if (cap.StartsWith("No public evidence", StringComparison.OrdinalIgnoreCase))
+        {
+            return "Domestic only";
+        }
+
+        return "Not recorded";
+    }
+
+    string CleanCity(string? city)
+    {
+        if (string.IsNullOrWhiteSpace(city))
+        {
+            return "—";
+        }
+
+        var marker = city.IndexOf("[conflicting", StringComparison.OrdinalIgnoreCase);
+        return marker >= 0 ? city[..marker].Trim() : city.Trim();
+    }
+
+    bool HasConflict(string? city)
+    {
+        return city?.Contains("[conflicting", StringComparison.OrdinalIgnoreCase) == true;
+    }
+}
+
+<!-- ==================== PAGE HEADER ==================== -->
+<div class="ph-page-head">
+    <div>
+        <h2>Pharmaceutical companies</h2>
+        <p>Manufacturer records, plant locations, export capability and contact details.</p>
+    </div>
+    <a class="ph-btn ph-btn-primary ph-btn-sm" asp-controller="Company" asp-action="Create">
+        <i class="bi bi-plus-lg"></i> Add company
+    </a>
+</div>
+
+<!-- ==================== COMPANIES TABLE ==================== -->
+<div class="ph-table-wrap ph-reveal">
+
+    <div class="ph-table-head">
+        <div>
+            <h3>Manufacturer directory</h3>
+            <p>@companies.Count company(ies) on record</p>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <div class="position-relative">
+                <input class="ph-input" style="padding-left:2.4rem;min-width:240px;"
+                       type="search" placeholder="Search companies..." data-table-search="companyTable" />
+                <i class="bi bi-search position-absolute" style="left:.9rem;top:50%;transform:translateY(-50%);color:var(--ph-muted);"></i>
+            </div>
+            <span class="ph-badge">@companies.Count total</span>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="ph-table ph-table-compact ph-table-fixed" id="companyTable">
+            <thead>
+                <tr>
+                    <th style="width:48px;">ID</th>
+                    <th style="width:230px;">Company</th>
+                    <th style="width:88px;">Province</th>
+                    <th style="width:120px;">District / city</th>
+                    <th style="width:120px;">Contact</th>
+                    <th style="width:115px;">Export status</th>
+                    <th style="width:68px;">Recalls</th>
+                    <th style="width:102px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (companies.Any())
+                {
+                    foreach (var company in companies)
+                    {
+                        <tr>
+                            <td><strong>#@company.Id</strong></td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2">
+                                    <span class="ph-avatar is-soft" style="width:34px;height:34px;">
+                                        <i class="bi bi-building"></i>
+                                    </span>
+                                    <div style="min-width:0;">
+                                        <strong class="ph-ellipsis" style="max-width:210px;" title="@company.Name">
+                                            @company.Name
+                                        </strong>
+                                        <span class="ph-ellipsis" style="max-width:210px;font-size:.78rem;color:var(--ph-muted);"
+                                              title="@company.Address">
+                                            @company.Address
+                                        </span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <span class="ph-badge">
+                                    @(string.IsNullOrEmpty(company.Province) ? "—" : company.Province)
+                                </span>
+                            </td>
+                            <td>
+                                <strong style="font-size:.88rem;">
+                                    @(string.IsNullOrEmpty(company.District) ? "—" : company.District)
+                                </strong>
+                                <span class="d-block" style="font-size:.78rem;color:var(--ph-muted);"
+                                      title="@company.City">
+                                    @CleanCity(company.City)
+                                </span>
+                                @if (HasConflict(company.City))
+                                {
+                                    <span class="ph-badge is-warning" style="font-size:.62rem;margin-top:.2rem;"
+                                          title="@company.City">
+                                        <i class="bi bi-exclamation-triangle"></i> conflicting
+                                    </span>
+                                }
+                            </td>
+                            <td>
+                                <span style="font-size:.86rem;color:var(--ph-slate);white-space:nowrap;"
+                                      title="@company.Phone">
+                                    <i class="bi bi-telephone me-1" style="color:var(--ph-teal-600);"></i>
+                                    @((company.Phone ?? string.Empty).Split(';')[0].Trim())
+                                </span>
+                            </td>
+                            <td>
+                                <span class="ph-badge @ExportBadge(company)" title="@company.ExportCapability">
+                                    @ExportLabel(company)
+                                </span>
+                                @if (!string.IsNullOrEmpty(company.SourceUrl))
+                                {
+                                    <a class="d-block mt-1" href="@company.SourceUrl" target="_blank" rel="noopener"
+                                       style="font-size:.74rem;font-weight:600;">
+                                        <i class="bi bi-box-arrow-up-right"></i> Source
+                                    </a>
+                                }
+                            </td>
+                            <td>
+                                @if (company.DocumentedRecallEvents > 0)
+                                {
+                                    <a asp-controller="DrugRecalls" asp-action="Index"
+                                       class="ph-badge is-danger" style="text-decoration:none;">
+                                        <i class="bi bi-exclamation-triangle"></i> @company.DocumentedRecallEvents
+                                    </a>
+                                }
+                                else
+                                {
+                                    <span class="ph-badge is-success">0</span>
+                                }
+                            </td>
+                            <td>
+                                <div class="ph-actions">
+                                    <a class="ph-btn ph-btn-outline ph-btn-sm ph-btn-icon" asp-controller="Company" asp-action="Edit" asp-route-id="@company.Id"
+                                       title="Edit company">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a class="ph-btn ph-btn-sm ph-btn-icon" asp-controller="Company" asp-action="Delete" asp-route-id="@company.Id"
+                                       style="background:#fff1f2;color:#be123c;border:1px solid #fecdd3;" title="Delete company">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="8">
+                            <div class="ph-empty">
+                                <i class="bi bi-buildings"></i>
+                                <h4>No companies found</h4>
+                                <p>There are currently no pharmaceutical companies in the registry.</p>
+                                <a class="ph-btn ph-btn-primary ph-btn-sm mt-2" asp-controller="Company" asp-action="Create">
+                                    <i class="bi bi-plus-lg"></i> Add the first company
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

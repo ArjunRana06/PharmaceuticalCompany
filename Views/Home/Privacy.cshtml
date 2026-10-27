@@ -1,0 +1,65 @@
+﻿@{
+    ViewData["Title"] = "Privacy Policy";
+}
+
+<section class="ph-hero" style="padding-block:3rem;">
+    <div class="ph-container" style="text-align:center;">
+        <span class="ph-eyebrow">Legal</span>
+        <h1 style="font-size:clamp(2rem,4vw,3rem);margin-top:1rem;">Privacy policy</h1>
+        <p class="ph-hero-lead" style="margin-inline:auto;">How PharmaCore collects, uses and protects the regulatory and operational data entrusted to us.</p>
+    </div>
+</section>
+
+<section class="ph-section">
+    <div class="ph-container" style="max-width:860px;">
+
+        <div class="ph-card ph-card-pad ph-reveal">
+            <h3>1. Information we collect</h3>
+            <p>
+                We collect account details (name, email, credentials) and the regulatory records you
+                enter &mdash; pharmaceutical companies, drug registrations, batch recalls and regulatory
+                notices. Access logs are retained for audit purposes.
+            </p>
+
+            <h3 style="margin-top:1.75rem;">2. How we use your data</h3>
+            <p>
+                Records are processed solely to operate the platform: maintaining the registry, flagging
+                safety recalls, generating compliance reporting and securing the application. We never
+                sell regulatory data to third parties.
+            </p>
+
+            <h3 style="margin-top:1.75rem;">3. Sharing and disclosure</h3>
+            <p>
+                Information is shared only with contracted regulatory bodies, or where disclosure is
+                legally required to protect public health. Every disclosure is recorded in the audit trail.
+            </p>
+
+            <h3 style="margin-top:1.75rem;">4. Security</h3>
+            <p>
+                Sessions use secure, HTTP-only cookies, credentials are stored as protected hashes, and all
+                data in transit is encrypted. Access is role-based and reviewed periodically.
+            </p>
+
+            <h3 style="margin-top:1.75rem;">5. Your rights</h3>
+            <p>
+                Authorised users may request a copy, correction or deletion of their personal data by
+                contacting the platform administrator. Regulatory records are retained where law requires it.
+            </p>
+
+            <div class="ph-alert is-info" style="margin-top:2rem;">
+                <i class="bi bi-info-circle-fill"></i>
+                <div>
+                    <strong>Last updated</strong>
+                    @DateTime.Now.ToString("MMMM yyyy")
+                </div>
+            </div>
+        </div>
+
+        <div class="text-center mt-4">
+            <a class="ph-btn ph-btn-outline" asp-controller="Home" asp-action="Index">
+                <i class="bi bi-arrow-left"></i> Back to home
+            </a>
+        </div>
+
+    </div>
+</section>

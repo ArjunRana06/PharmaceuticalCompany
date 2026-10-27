@@ -1,0 +1,134 @@
+@model Project.Models.Company
+
+@{
+    ViewData["Title"] = "Add Company";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="ph-page-head">
+    <div>
+        <h2>Add pharmaceutical company</h2>
+        <p>Register a manufacturer with its plant location and contact details.</p>
+    </div>
+    <a class="ph-btn ph-btn-outline ph-btn-sm" asp-controller="Company" asp-action="Index">
+        <i class="bi bi-arrow-left"></i> Back to list
+    </a>
+</div>
+
+<div class="ph-panel ph-reveal" style="max-width:920px;">
+    <div class="ph-panel-head">
+        <div>
+            <h3>Company details</h3>
+            <p>All fields are stored in the regulatory registry.</p>
+        </div>
+        <span class="ph-badge is-info"><i class="bi bi-shield-check"></i> Validation on</span>
+    </div>
+
+    <form asp-action="Create" method="post">
+        @Html.AntiForgeryToken()
+
+        <div asp-validation-summary="ModelOnly" class="ph-alert is-danger">
+            <i class="bi bi-exclamation-octagon-fill"></i>
+            <div>Please correct the highlighted fields and try again.</div>
+        </div>
+
+        <div class="row g-3">
+            <div class="col-md-6">
+                <div class="ph-field">
+                    <label asp-for="Name" class="ph-label">Company name <span class="ph-req">*</span></label>
+                    <input asp-for="Name" class="ph-input" placeholder="e.g. Himalayan Pharma Pvt. Ltd." />
+                    <span asp-validation-for="Name" class="ph-validation"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="ph-field">
+                    <label asp-for="Province" class="ph-label">Province <span class="ph-req">*</span></label>
+                    <input asp-for="Province" class="ph-input" placeholder="e.g. Bagmati" />
+                    <span asp-validation-for="Province" class="ph-validation"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="ph-field">
+                    <label asp-for="District" class="ph-label">District <span class="ph-req">*</span></label>
+                    <input asp-for="District" class="ph-input" placeholder="e.g. Lalitpur" />
+                    <span asp-validation-for="District" class="ph-validation"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="ph-field">
+                    <label asp-for="City" class="ph-label">City / location <span class="ph-req">*</span></label>
+                    <input asp-for="City" class="ph-input" placeholder="e.g. Godawari" />
+                    <span asp-validation-for="City" class="ph-validation"></span>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="ph-field">
+                    <label asp-for="Address" class="ph-label">Street address <span class="ph-req">*</span></label>
+                    <input asp-for="Address" class="ph-input" placeholder="e.g. Balkhu Road, Industrial Estate" />
+                    <span asp-validation-for="Address" class="ph-validation"></span>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="ph-field">
+                    <label asp-for="Phone" class="ph-label">Phone <span class="ph-req">*</span></label>
+                    <input asp-for="Phone" class="ph-input" placeholder="+977-1-XXXXXXX" />
+                    <span asp-validation-for="Phone" class="ph-validation"></span>
+                </div>
+            </div>
+
+            <div class="col-md-12">
+                <hr style="border:none;border-top:1px dashed var(--ph-line);margin:.5rem 0 1.25rem;" />
+                <h4 style="font-size:.95rem;margin-bottom:.25rem;">Export &amp; recall profile</h4>
+                <p style="font-size:.84rem;margin-bottom:1rem;">
+                    Sourced from the DDA pharmaceutical company research dataset.
+                </p>
+            </div>
+
+            <div class="col-md-6">
+                <div class="ph-field">
+                    <label asp-for="ExportCapability" class="ph-label">Export capability</label>
+                    <input asp-for="ExportCapability" class="ph-input"
+                           placeholder="e.g. Export-capable - WHO-GMP certified" />
+                    <span asp-validation-for="ExportCapability" class="ph-validation"></span>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="ph-field">
+                    <label asp-for="InternationalRecallRecords" class="ph-label">International recall records</label>
+                    <input asp-for="InternationalRecallRecords" class="ph-input"
+                           placeholder="e.g. None found internationally" />
+                    <span asp-validation-for="InternationalRecallRecords" class="ph-validation"></span>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <div class="ph-field">
+                    <label asp-for="SourceUrl" class="ph-label">Source URL</label>
+                    <input asp-for="SourceUrl" class="ph-input" placeholder="https://..." />
+                    <span asp-validation-for="SourceUrl" class="ph-validation"></span>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="ph-field">
+                    <label asp-for="DocumentedRecallEvents" class="ph-label">Documented recall events</label>
+                    <input asp-for="DocumentedRecallEvents" class="ph-input" type="number" min="0" />
+                    <span asp-validation-for="DocumentedRecallEvents" class="ph-validation"></span>
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 mt-3 pt-3" style="border-top:1px solid var(--ph-line);">
+            <button type="submit" class="ph-btn ph-btn-primary ph-btn-sm">
+                <i class="bi bi-check2"></i> Save company
+            </button>
+            <a asp-action="Index" class="ph-btn ph-btn-ghost ph-btn-sm">Cancel</a>
+        </div>
+    </form>
+</div>

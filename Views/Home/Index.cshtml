@@ -1,0 +1,461 @@
+﻿@model Project.Models.HomeViewModel
+
+@{
+    ViewData["Title"] = "Pharmaceutical Intelligence Platform";
+}
+
+<!-- ==================== HERO ==================== -->
+<section class="ph-hero">
+    <div class="ph-container ph-hero-grid">
+
+        <div class="ph-hero-copy">
+            <span class="ph-eyebrow">Regulatory-grade pharmaceutical data</span>
+
+            <h1>
+                Safer medicines,<br />
+                tracked from <span class="ph-highlight">lab to patient</span>.
+            </h1>
+
+            <p class="ph-hero-lead">
+                PharmaCore unifies pharmaceutical company records, drug registrations, batch recalls
+                and regulatory notices into one compliant workspace &mdash; so your regulatory team
+                acts on verified information, not spreadsheets.
+            </p>
+
+            <div class="ph-hero-actions">
+                <a class="ph-btn ph-btn-primary ph-btn-lg" asp-controller="Home" asp-action="Login">
+                    <i class="bi bi-shield-check"></i> Open the console
+                </a>
+                <a class="ph-btn ph-btn-outline ph-btn-lg" href="#platform">
+                    Explore the platform <i class="bi bi-arrow-down"></i>
+                </a>
+            </div>
+
+            <div class="ph-hero-meta">
+                <div>
+                    <strong><span data-count="@Model.DrugCount" data-suffix="+">0</span></strong>
+                    <span>Registered products</span>
+                </div>
+                <div>
+                    <strong><span data-count="@Model.CompanyCount" data-suffix="+">0</span></strong>
+                    <span>Verified manufacturers</span>
+                </div>
+                <div>
+                    <strong><span data-count="@Model.RecallCount">0</span></strong>
+                    <span>Open safety recalls</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="ph-hero-art" aria-hidden="true">
+            <div class="ph-blob"></div>
+
+            <svg class="ph-molecule" viewBox="0 0 120 120" fill="none">
+                <circle cx="60" cy="60" r="10" fill="#2dd4bf" fill-opacity=".85"/>
+                <circle cx="20" cy="30" r="7" fill="#38bdf8" fill-opacity=".7"/>
+                <circle cx="102" cy="34" r="6" fill="#0d9488" fill-opacity=".6"/>
+                <circle cx="26" cy="98" r="6" fill="#0d9488" fill-opacity=".45"/>
+                <circle cx="98" cy="96" r="8" fill="#5eead4" fill-opacity=".8"/>
+                <path d="M60 60 20 30M60 60l42-26M60 60 26 98M60 60l38 36" stroke="#0d9488" stroke-opacity=".35" stroke-width="2"/>
+            </svg>
+
+            <div class="ph-capsule"></div>
+
+            <div class="ph-art-chip ph-art-chip-1">
+                <i class="bi bi-patch-check-fill"></i> GMP compliant
+            </div>
+            <div class="ph-art-chip ph-art-chip-2">
+                <i class="bi bi-bell-fill"></i> Live recall alerts
+            </div>
+            <div class="ph-art-chip ph-art-chip-3">
+                <i class="bi bi-database-fill"></i> 12,400+ records
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<!-- ==================== TRUST STRIP ==================== -->
+<section class="ph-trust">
+    <div class="ph-container">
+        <div class="ph-trust-grid">
+            <div><i class="bi bi-award"></i> WHO GMP</div>
+            <div><i class="bi bi-patch-check"></i> DDA Aligned</div>
+            <div><i class="bi bi-shield-lock"></i> ISO 27001</div>
+            <div><i class="bi bi-box-seam"></i> Batch Traceable</div>
+            <div><i class="bi bi-clipboard2-pulse"></i> Audit Ready</div>
+        </div>
+    </div>
+</section>
+
+<!-- ==================== PLATFORM FEATURES ==================== -->
+<section class="ph-section" id="platform">
+    <div class="ph-container">
+
+        <div class="ph-section-head ph-reveal">
+            <span class="ph-eyebrow">The platform</span>
+            <h2>Everything a pharmaceutical regulator needs, in one console</h2>
+            <p>Built around the way drug safety teams actually work &mdash; from manufacturer verification to post-market surveillance.</p>
+        </div>
+
+        <div class="ph-feature-grid">
+
+            <article class="ph-feature ph-reveal">
+                <div class="ph-card-icon"><i class="bi bi-buildings"></i></div>
+                <h3>Company registry</h3>
+                <p>Maintain a verified directory of manufacturers with province, district and plant-level contact data.</p>
+                <ul>
+                    <li>Validated licence details</li>
+                    <li>Plant &amp; facility mapping</li>
+                    <li>Duplicate-safe records</li>
+                </ul>
+            </article>
+
+            <article class="ph-feature ph-reveal">
+                <div class="ph-card-icon is-blue"><i class="bi bi-capsule"></i></div>
+                <h3>Drug database</h3>
+                <p>Search by brand, generic, strength or dosage form with registration history for every product.</p>
+                <ul>
+                    <li>Registration numbers</li>
+                    <li>Generic &amp; brand mapping</li>
+                    <li>Dosage form taxonomy</li>
+                </ul>
+            </article>
+
+            <article class="ph-feature ph-reveal">
+                <div class="ph-card-icon is-rose"><i class="bi bi-exclamation-octagon"></i></div>
+                <h3>Recall tracking</h3>
+                <p>Surface batch-level recalls instantly, ranked by severity so urgent actions are never missed.</p>
+                <ul>
+                    <li>Batch &amp; lot drill-down</li>
+                    <li>Recall level classification</li>
+                    <li>Reason and source linking</li>
+                </ul>
+            </article>
+
+            <article class="ph-feature ph-reveal">
+                <div class="ph-card-icon is-amber"><i class="bi bi-megaphone"></i></div>
+                <h3>Regulatory notices</h3>
+                <p>Publish and archive DDA notices with searchable titles, dates and full source references.</p>
+                <ul>
+                    <li>Chronological notice feed</li>
+                    <li>Type-based filtering</li>
+                    <li>Source URL integrity</li>
+                </ul>
+            </article>
+
+            <article class="ph-feature ph-reveal">
+                <div class="ph-card-icon is-violet"><i class="bi bi-people"></i></div>
+                <h3>Role-based access</h3>
+                <p>Give every team member exactly the access they need with secure, cookie-based sessions.</p>
+                <ul>
+                    <li>Admin console isolation</li>
+                    <li>Secure authentication</li>
+                    <li>Full audit trail</li>
+                </ul>
+            </article>
+
+            <article class="ph-feature ph-reveal">
+                <div class="ph-card-icon"><i class="bi bi-bar-chart-line"></i></div>
+                <h3>Regulatory analytics</h3>
+                <p>Turn registry data into decision-ready dashboards for launches, audits and inspections.</p>
+                <ul>
+                    <li>Live KPI dashboards</li>
+                    <li>Recall trend analysis</li>
+                    <li>Exportable summaries</li>
+                </ul>
+            </article>
+
+        </div>
+    </div>
+</section>
+
+<!-- ==================== COMPLIANCE / STEPS ==================== -->
+<section class="ph-section ph-section-dark" id="compliance">
+    <div class="ph-container">
+
+        <div class="ph-section-head ph-reveal">
+            <span class="ph-eyebrow is-dark">Compliance workflow</span>
+            <h2>From data capture to inspection-ready reporting</h2>
+            <p>A transparent four-step pipeline that keeps your regulatory records defensible at any moment.</p>
+        </div>
+
+        <div class="ph-steps">
+
+            <div class="ph-step ph-reveal">
+                <h3>Register</h3>
+                <p>Onboard manufacturers and their products with structured, validated fields and registration numbers.</p>
+            </div>
+
+            <div class="ph-step ph-reveal">
+                <h3>Verify</h3>
+                <p>Cross-check licence, plant and batch details before any record becomes authoritative.</p>
+            </div>
+
+            <div class="ph-step ph-reveal">
+                <h3>Monitor</h3>
+                <p>Track recalls and regulatory notices continuously, with severity-based alerting.</p>
+            </div>
+
+            <div class="ph-step ph-reveal">
+                <h3>Report</h3>
+                <p>Export inspection-ready summaries of every action taken, with a complete audit trail.</p>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ==================== INSIGHTS / STATS ==================== -->
+<section class="ph-section ph-section-alt" id="insights">
+    <div class="ph-container">
+
+        <div class="ph-section-head ph-reveal">
+            <span class="ph-eyebrow">Network insights</span>
+            <h2>Trusted by regulatory teams across the region</h2>
+            <p>Live figures from the PharmaCore registry, refreshed continuously as partners submit data.</p>
+        </div>
+
+        <div class="ph-stats">
+
+            <div class="ph-stat ph-reveal">
+                <div class="ph-stat-top">
+                    <div class="ph-stat-value"><span data-count="@Model.CompanyCount" data-suffix="+">0</span></div>
+                    <div class="ph-stat-icon"><i class="bi bi-buildings"></i></div>
+                </div>
+                <p class="ph-stat-label">Pharmaceutical companies</p>
+                <span class="ph-stat-trend"><i class="bi bi-arrow-up-short"></i> @Model.ExportCapableCount export-capable</span>
+            </div>
+
+            <div class="ph-stat ph-reveal">
+                <div class="ph-stat-top">
+                    <div class="ph-stat-value"><span data-count="@Model.DrugCount" data-suffix="+">0</span></div>
+                    <div class="ph-stat-icon"><i class="bi bi-capsule-pill"></i></div>
+                </div>
+                <p class="ph-stat-label">Registered drug products</p>
+                <span class="ph-stat-trend"><i class="bi bi-arrow-up-short"></i> @Model.DocumentedRecallEvents recall events documented</span>
+            </div>
+
+            <div class="ph-stat ph-reveal">
+                <div class="ph-stat-top">
+                    <div class="ph-stat-value"><span data-count="@Model.RecallCount">0</span></div>
+                    <div class="ph-stat-icon"><i class="bi bi-exclamation-triangle"></i></div>
+                </div>
+                <p class="ph-stat-label">Open safety recalls</p>
+                <span class="ph-stat-trend is-down"><i class="bi bi-arrow-down-short"></i> @Model.ProvinceCount provinces covered</span>
+            </div>
+
+            <div class="ph-stat ph-reveal">
+                <div class="ph-stat-top">
+                    <div class="ph-stat-value"><span data-count="99" data-suffix="%">0</span></div>
+                    <div class="ph-stat-icon"><i class="bi bi-stopwatch"></i></div>
+                </div>
+                <p class="ph-stat-label">Recall response within SLA</p>
+                <span class="ph-stat-trend"><i class="bi bi-arrow-up-short"></i> 2% this quarter</span>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+<!-- ==================== FEATURED COMPANIES ==================== -->
+<section class="ph-section" id="companies">
+    <div class="ph-container">
+
+        <div class="ph-section-head ph-reveal">
+            <span class="ph-eyebrow">Company registry</span>
+            <h2>Verified manufacturers in the network</h2>
+            <p>Live portfolio data from the companies collected from the DDA dataset.</p>
+        </div>
+
+        <div class="ph-panel ph-reveal">
+
+            @{
+                var maxPortfolio = Model.FeaturedCompanies.Count == 0
+                    ? 1
+                    : Model.FeaturedCompanies.Max(c => c.DrugCount);
+            }
+
+            @if (Model.FeaturedCompanies.Any())
+            {
+                <div>
+                    @foreach (var company in Model.FeaturedCompanies)
+                    {
+                        var width = maxPortfolio == 0 ? 0 : Math.Round(company.DrugCount * 100.0 / maxPortfolio);
+                        <div class="ph-list-row">
+                            <span class="ph-avatar is-soft"><i class="bi bi-building"></i></span>
+                            <div style="min-width:0;flex:1;">
+                                <strong>@company.Name</strong>
+                                <span>@(string.IsNullOrEmpty(company.Province) ? "Province n/a" : company.Province)</span>
+                                <div class="ph-progress mt-2">
+                                    <span style="width:@(width.ToString("0.0") + "%")"></span>
+                                </div>
+                            </div>
+                            <span class="ph-badge">@company.DrugCount drugs</span>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="ph-empty">
+                    <i class="bi bi-buildings"></i>
+                    <h4>No companies yet</h4>
+                    <p class="mb-0">Add your first pharmaceutical company to begin.</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- ==================== LATEST RECALLS ==================== -->
+<section class="ph-section" id="recalls">
+    <div class="ph-container">
+
+        <div class="ph-section-head ph-reveal">
+            <span class="ph-eyebrow">Safety watch</span>
+            <h2>Latest batch recalls</h2>
+            <p>Live recall feed from the collected DDA and laboratory data.</p>
+        </div>
+
+        <div class="ph-panel ph-reveal">
+
+            @if (Model.RecentRecalls.Any())
+            {
+                <ul class="ph-activity">
+                    @foreach (var recall in Model.RecentRecalls)
+                    {
+                        <li>
+                            <span class="ph-activity-icon is-rose"><i class="bi bi-exclamation-triangle"></i></span>
+                            <div>
+                                <strong>@recall.DrugName</strong>
+                                <span>
+                                    @(string.IsNullOrEmpty(recall.BatchNumber) ? "Batch n/a" : "Batch " + recall.BatchNumber)
+                                    &middot; @recall.CompanyName
+                                </span>
+                                <span class="d-block mt-1">
+                                    <span class="ph-badge is-warning">@(string.IsNullOrEmpty(recall.RecallLevel) ? "Unclassified" : recall.RecallLevel)</span>
+                                    <span class="d-inline-block ms-2" style="font-size:.74rem;color:var(--ph-muted);">
+                                        @recall.RecallDate.ToString("dd MMM yyyy")
+                                    </span>
+                                </span>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <div class="ph-empty">
+                    <i class="bi bi-shield-check"></i>
+                    <h4>No recalls recorded</h4>
+                    <p class="mb-0">The safety register is currently clear.</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- ==================== REGULATORY NOTICES ==================== -->
+<section class="ph-section" id="notices">
+    <div class="ph-container">
+
+        <div class="ph-section-head ph-reveal">
+            <span class="ph-eyebrow">Notice board</span>
+            <h2>Latest regulatory notices</h2>
+            <p>Announcements published by the regulator, with full source attribution.</p>
+        </div>
+
+        <div class="ph-panel ph-reveal">
+
+            @if (Model.RecentNotices.Any())
+            {
+                <ul class="ph-activity">
+                    @foreach (var notice in Model.RecentNotices)
+                    {
+                        <li>
+                            <span class="ph-activity-icon is-blue"><i class="bi bi-megaphone"></i></span>
+                            <div>
+                                <strong>@notice.Title</strong>
+                                <span>
+                                    @(string.IsNullOrEmpty(notice.NoticeType) ? "General" : notice.NoticeType)
+                                    &middot; @notice.NoticeDate.ToString("dd MMM yyyy")
+                                </span>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <div class="ph-empty">
+                    <i class="bi bi-inbox"></i>
+                    <h4>No notices yet</h4>
+                    <p class="mb-0">Published DDA notices will appear here.</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
+<!-- ==================== WHY / TESTIMONIAL ==================== -->
+<section class="ph-section">
+    <div class="ph-container">
+
+        <div class="ph-section-head ph-reveal">
+            <span class="ph-eyebrow">Why teams switch</span>
+            <h2>Designed for people who answer to regulators</h2>
+        </div>
+
+        <div class="ph-feature-grid">
+
+            <article class="ph-feature ph-reveal">
+                <div class="ph-card-icon"><i class="bi bi-lightning-charge"></i></div>
+                <h3>Minutes, not days</h3>
+                <p>Recalls that used to take a week to trace are surfaced in seconds with batch-level search and severity ranking.</p>
+            </article>
+
+            <article class="ph-feature ph-reveal">
+                <div class="ph-card-icon is-blue"><i class="bi bi-fingerprint"></i></div>
+                <h3>Trustworthy provenance</h3>
+                <p>Every notice and recall keeps its original source reference, so claims can always be traced back to origin.</p>
+            </article>
+
+            <article class="ph-feature ph-reveal">
+                <div class="ph-card-icon is-violet"><i class="bi bi-phone"></i></div>
+                <h3>Any device</h3>
+                <p>A fully responsive console that works beautifully on the shop floor, in the lab, or at an inspection desk.</p>
+            </article>
+
+        </div>
+    </div>
+</section>
+
+<!-- ==================== CTA ==================== -->
+<section class="ph-section ph-section-tight">
+    <div class="ph-container">
+        <div class="ph-card ph-card-pad ph-reveal"
+             style="background:linear-gradient(135deg,var(--ph-teal-800),var(--ph-teal-600) 55%,#0ea5e9);border:0;color:#fff;box-shadow:var(--ph-shadow-lg);">
+
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-4">
+                <div style="max-width:560px;">
+                    <h2 style="color:#fff;margin-bottom:.5rem;">Ready to modernise your regulatory workflow?</h2>
+                    <p style="color:#d9f5f0;margin:0;">
+                        Sign in to the PharmaCore console and manage companies, drugs, recalls
+                        and notices from a single, audit-ready workspace.
+                    </p>
+                </div>
+                <div class="d-flex flex-wrap gap-2">
+                    <a class="ph-btn ph-btn-light ph-btn-lg" asp-controller="Home" asp-action="Login">
+                        <i class="bi bi-box-arrow-in-right"></i> Sign in
+                    </a>
+                    <a class="ph-btn ph-btn-outline ph-btn-lg" asp-controller="Company" asp-action="Index"
+                       style="background:#fff;border-color:transparent;">
+                        Browse companies
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>

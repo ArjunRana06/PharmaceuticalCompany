@@ -1,0 +1,95 @@
+@model IEnumerable<Project.Models.DrugCategory>
+
+@{
+    ViewData["Title"] = "Drug Categories";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var categories = Model?.ToList() ?? new List<Project.Models.DrugCategory>();
+}
+
+<div class="ph-page-head">
+    <div>
+        <h2>Drug categorisation rules</h2>
+        <p>Official sale, prescription and labelling rules for Schedule-4 drug categories.</p>
+    </div>
+    <span class="ph-badge is-info">
+        <i class="bi bi-journal-bookmark"></i> @categories.Count rule(s)
+    </span>
+</div>
+
+<div class="ph-feature-grid" style="margin-bottom:1.5rem;">
+    @foreach (var category in categories)
+    {
+        var isPrescription = !string.IsNullOrEmpty(category.PrescriptionRequired)
+            && category.PrescriptionRequired.StartsWith("Yes", StringComparison.OrdinalIgnoreCase);
+
+        <article class="ph-feature ph-reveal">
+            <div class="d-flex align-items-center gap-2 mb-3">
+                <span class="ph-stat-icon @(isPrescription ? "" : "is-amber")"
+                      style="width:46px;height:46px;font-size:1.1rem;font-weight:800;">
+                    @category.Category
+                </span>
+                <div>
+                    <span class="ph-badge @(isPrescription ? "is-danger" : "is-warning")">
+                        @(isPrescription ? "Prescription only" : "Over the counter")
+                    </span>
+                    <h3 style="font-size:1rem;margin:.4rem 0 0;">@category.SubCategory</h3>
+                </div>
+            </div>
+
+            <p style="font-size:.9rem;">@category.Definition</p>
+
+            <ul>
+                <li><strong>Prescription:</strong> @category.PrescriptionRequired</li>
+                <li><strong>Who may sell:</strong> @category.WhoMaySell</li>
+                <li><strong>Label warning:</strong> @category.LabelWarning</li>
+            </ul>
+
+            <div class="mt-3 pt-3" style="border-top:1px dashed var(--ph-line);">
+                <span class="ph-badge is-muted" style="font-size:.68rem;">
+                    <i class="bi bi-book"></i> @category.LegalReference
+                </span>
+            </div>
+        </article>
+    }
+</div>
+
+<div class="ph-panel ph-reveal">
+    <div class="ph-panel-head">
+        <div>
+            <h3>Reference table</h3>
+            <p>Schedule-4 categories as published under the Drugs Categorization Rules, 2043.</p>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="ph-table">
+            <thead>
+                <tr>
+                    <th style="width:90px;">Category</th>
+                    <th style="width:190px;">Sub-category</th>
+                    <th>Drugs covered</th>
+                    <th style="width:200px;">Prescription required</th>
+                    <th style="width:230px;">Who may sell</th>
+                    <th style="width:230px;">Label warning</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var category in categories)
+                {
+                    <tr>
+                        <td>
+                            <span class="ph-stat-icon" style="width:38px;height:38px;font-size:.95rem;font-weight:800;">
+                                @category.Category
+                            </span>
+                        </td>
+                        <td><strong>@category.SubCategory</strong></td>
+                        <td style="font-size:.86rem;">@category.Definition</td>
+                        <td style="font-size:.84rem;">@category.PrescriptionRequired</td>
+                        <td style="font-size:.84rem;">@category.WhoMaySell</td>
+                        <td style="font-size:.84rem;">@category.LabelWarning</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

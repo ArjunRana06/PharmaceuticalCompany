@@ -1,0 +1,26 @@
+@{
+    ViewData["Title"] = "Sync Recalls";
+}
+
+<div class="container mt-4">
+    <h2>Sync Latest Recalls from Public Feed</h2>
+    <p>Pulls latest recall data from the configured public source and upserts into the database via stored procedure. New approved recalls will appear on Home and Drug Recalls.</p>
+
+    @if (TempData["Message"] != null)
+    {
+        <div class="alert alert-success">@TempData["Message"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    <form asp-action="SyncNow" method="post">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="btn btn-primary">Sync Now</button>
+    </form>
+
+    <hr />
+    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">View on Home</a>
+    <a asp-controller="DrugRecalls" asp-action="Index" class="btn btn-secondary">View All Recalls</a>
+</div>

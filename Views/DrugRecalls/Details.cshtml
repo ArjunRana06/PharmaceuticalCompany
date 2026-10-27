@@ -1,0 +1,102 @@
+@model Project.Models.DrugRecall
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Recall Details";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<div class="ph-page-head">
+    <div>
+        <h2>Recall details</h2>
+        <p>Full data for <strong>@Model.DrugName</strong></p>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="ph-btn ph-btn-ghost" asp-action="Index"><i class="bi bi-arrow-left"></i> Back</a>
+        @if (User.IsInRole("Admin") || (Model.SubmittedByUserId.HasValue && Model.SubmittedByUserId.Value.ToString() == User.FindFirstValue(ClaimTypes.NameIdentifier)))
+        {
+            <a class="ph-btn ph-btn-outline" asp-action="Edit" asp-route-id="@Model.Id"><i class="bi bi-pencil"></i> Edit</a>
+        }
+        @if (User.IsInRole("Admin"))
+        {
+            <form asp-action="Delete" asp-route-id="@Model.Id" method="post" style="display:inline;">
+                @Html.AntiForgeryToken()
+                <button class="ph-btn ph-btn-danger" type="submit" onclick="return confirm('Delete this recall?')"><i class="bi bi-trash"></i> Delete</button>
+            </form>
+        }
+        else if (Model.ApprovalStatus == "Pending" && Model.SubmittedByUserId.HasValue && Model.SubmittedByUserId.Value.ToString() == User.FindFirstValue(ClaimTypes.NameIdentifier))
+        {
+            <form asp-action="Delete" asp-route-id="@Model.Id" method="post" style="display:inline;">
+                @Html.AntiForgeryToken()
+                <button class="ph-btn ph-btn-danger" type="submit" onclick="return confirm('Delete this recall?')"><i class="bi bi-trash"></i> Delete</button>
+            </form>
+        }
+    </div>
+</div>
+
+@if (!Model.IsApproved)
+{
+    <div class="ph-alert is-warning">
+        <i class="bi bi-clock"></i>
+        <div>
+            <strong>Status:</strong> @Model.ApprovalStatus - This recall has not yet been approved and is not visible in the public register.
+        </div>
+    </div>
+}
+
+<div class="ph-grid ph-grid-2">
+    <div class="ph-card">
+        <h4>Medicine</h4>
+        <p><strong>Drug name:</strong> @Model.DrugName</p>
+        <p><strong>Batch number:</strong> @(string.IsNullOrEmpty(Model.BatchNumber) ? "n/a" : Model.BatchNumber)</p>
+        <p><strong>Recall date:</strong> @Model.RecallDate.ToString("dd MMM yyyy")</p>
+        <p><strong>Year:</strong> @Model.Year</p>
+        <p><strong>Recall level:</strong> @(string.IsNullOrEmpty(Model.RecallLevel) ? "n/a" : Model.RecallLevel)</p>
+    </div>
+
+    <div class="ph-card">
+        <h4>Company</h4>
+        <p><strong>Name:</strong> @(Model.Company?.Name ?? "Unassigned")</p>
+        <p><strong>Province:</strong> @(string.IsNullOrEmpty(Model.Company?.Province) ? "n/a" : Model.Company.Province)</p>
+    </div>
+
+    <div class="ph-card col-span-2">
+        <h4>Reason for recall</h4>
+        <p>@(string.IsNullOrEmpty(Model.Reason) ? "n/a" : Model.Reason)</p>
+    </div>
+
+    <div class="ph-card col-span-2">
+        <h4>Side effects</h4>
+        <p>@(string.IsNullOrEmpty(Model.SideEffects) ? "No side effects recorded." : Model.SideEffects)</p>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.SourceUrl))
+    {
+        <div class="ph-card col-span-2">
+            <h4>Source</h4>
+            <a href="@Model.SourceUrl" target="_blank" rel="noopener" class="ph-btn ph-btn-outline ph-btn-sm">
+                <i class="bi bi-box-arrow-up-right"></i> Open source
+            </a>
+        </div>
+    }
+
+    <div class="ph-card col-span-2">
+        <h4>Submission info</h4>
+        <p><strong>Submitted by:</strong> @(Model.SubmittedByUser?.Name ?? "System")</p>
+        <p><strong>Submitted at:</strong> @(Model.SubmittedAt?.ToString("dd MMM yyyy HH:mm") ?? "n/a")</p>
+        <p><strong>Approval status:</strong>
+            <span class="ph-badge @(Model.ApprovalStatus == "Approved" ? "is-success" : Model.ApprovalStatus == "Rejected" ? "is-danger" : "is-warning")">
+                @Model.ApprovalStatus
+            </span>
+        </p>
+        @if (Model.ApprovedAt.HasValue)
+        {
+            <p><strong>Approved by:</strong> @(Model.ApprovedByUser?.Name ?? "n/a")</p>
+            <p><strong>Approved at:</strong> @Model.ApprovedAt.Value.ToString("dd MMM yyyy HH:mm")</p>
+        }
+        @if (!string.IsNullOrEmpty(Model.RejectionReason))
+        {
+            <p><strong>Rejection reason:</strong> @Model.RejectionReason</p>
+        }
+    </div>
+</div>

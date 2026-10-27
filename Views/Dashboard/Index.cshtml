@@ -1,0 +1,266 @@
+@model Project.Models.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<!-- ==================== PAGE HEADER ==================== -->
+<div class="ph-page-head">
+    <div>
+        <h2>Regulatory overview</h2>
+        <p>Live status of the pharmaceutical registry, safety recalls and regulatory notices.</p>
+    </div>
+    <div class="d-flex flex-wrap gap-2">
+        <a class="ph-btn ph-btn-outline ph-btn-sm" asp-controller="Company" asp-action="Index">
+            <i class="bi bi-buildings"></i> Companies
+        </a>
+        <a class="ph-btn ph-btn-primary ph-btn-sm" asp-controller="Users" asp-action="Index">
+            <i class="bi bi-person-plus"></i> Manage users
+        </a>
+    </div>
+</div>
+
+<!-- ==================== KPI CARDS ==================== -->
+<div class="ph-kpi-grid">
+
+    <div class="ph-stat ph-reveal">
+        <div class="ph-stat-top">
+            <div class="ph-stat-value" data-count="@Model.CompanyCount">0</div>
+            <div class="ph-stat-icon"><i class="bi bi-buildings"></i></div>
+        </div>
+        <p class="ph-stat-label">Pharmaceutical companies</p>
+        <span class="ph-stat-trend"><i class="bi bi-graph-up-arrow"></i> Across @Model.ProvinceCount provinces</span>
+    </div>
+
+    <div class="ph-stat ph-reveal">
+        <div class="ph-stat-top">
+            <div class="ph-stat-value" data-count="@Model.ExportCapableCount">0</div>
+            <div class="ph-stat-icon" style="background:linear-gradient(140deg,#eff6ff,#dbeafe);color:#1d4ed8;">
+                <i class="bi bi-box-arrow-up-right"></i>
+            </div>
+        </div>
+        <p class="ph-stat-label">Export-capable manufacturers</p>
+        <span class="ph-stat-trend"><i class="bi bi-globe-asia-australia"></i> WHO-GMP certified</span>
+    </div>
+
+    <div class="ph-stat ph-reveal">
+        <div class="ph-stat-top">
+            <div class="ph-stat-value" data-count="@Model.DrugCount">0</div>
+            <div class="ph-stat-icon" style="background:linear-gradient(140deg,#f5f3ff,#ede9fe);color:#6d28d9;">
+                <i class="bi bi-capsule-pill"></i>
+            </div>
+        </div>
+        <p class="ph-stat-label">Registered drug products</p>
+        <span class="ph-stat-trend"><i class="bi bi-calendar-check"></i> @Model.NewDrugsThisMonth new this month</span>
+    </div>
+
+    <div class="ph-stat ph-reveal">
+        <div class="ph-stat-top">
+            <div class="ph-stat-value" data-count="@Model.DocumentedRecallEvents">0</div>
+            <div class="ph-stat-icon" style="background:linear-gradient(140deg,#fff1f2,#ffe4e6);color:#be123c;">
+                <i class="bi bi-exclamation-octagon"></i>
+            </div>
+        </div>
+        <p class="ph-stat-label">Documented recall events</p>
+        <span class="ph-stat-trend is-down"><i class="bi bi-clock-history"></i> @Model.RecallCount register entries</span>
+    </div>
+
+    <div class="ph-stat ph-reveal">
+        <div class="ph-stat-top">
+            <div class="ph-stat-value" data-count="@Model.CategoryCount">0</div>
+            <div class="ph-stat-icon" style="background:linear-gradient(140deg,#fffbeb,#fef3c7);color:#b45309;">
+                <i class="bi bi-journal-bookmark"></i>
+            </div>
+        </div>
+        <p class="ph-stat-label">Drug categorisation rules</p>
+        <span class="ph-stat-trend"><i class="bi bi-megaphone"></i> @Model.NoticeCount notices published</span>
+    </div>
+
+</div>
+
+<!-- ==================== CHART + ACTIVITY ==================== -->
+<div class="ph-dash-grid">
+
+    <!-- Monthly activity -->
+    <section class="ph-panel ph-reveal">
+        <div class="ph-panel-head">
+            <div>
+                <h3>Registry activity</h3>
+                <p>Product registrations and recalls over the last six months</p>
+            </div>
+            <div class="ph-legend">
+                <span><i style="background:linear-gradient(180deg,#2dd4bf,#0f766e);"></i> Registrations</span>
+                <span><i style="background:linear-gradient(180deg,#cbd5e1,#94a3b8);"></i> Recalls</span>
+            </div>
+        </div>
+
+        @{
+            var maxValue = Model.MonthlyActivity.Count == 0
+                ? 1
+                : Math.Max(1, Model.MonthlyActivity.Max(m => Math.Max(m.DrugCount, m.RecallCount)));
+            var hasActivity = Model.MonthlyActivity.Any(m => m.DrugCount > 0 || m.RecallCount > 0);
+        }
+
+        @if (hasActivity)
+        {
+            <div class="ph-bars">
+                @foreach (var month in Model.MonthlyActivity)
+                {
+                    var drugHeight = Math.Max(4, Math.Round(month.DrugCount * 100.0 / maxValue));
+                    var recallHeight = Math.Max(4, Math.Round(month.RecallCount * 100.0 / maxValue));
+
+                    <div class="ph-bar-col">
+                        <div class="d-flex align-items-end gap-1 w-100 justify-content-center" style="height:100%;">
+                            <div class="ph-bar" data-height="@(drugHeight.ToString("0.0") + "%")"
+                                 title="@month.DrugCount registrations" style="--h:4%;"></div>
+                            <div class="ph-bar is-soft" data-height="@(recallHeight.ToString("0.0") + "%")"
+                                 title="@month.RecallCount recalls" style="--h:4%;"></div>
+                        </div>
+                        <span>@month.Label</span>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="ph-empty">
+                <i class="bi bi-graph-up"></i>
+                <h4>No activity recorded yet</h4>
+                <p class="mb-0">Product registrations and recalls will be charted here as soon as data is added.</p>
+            </div>
+        }
+    </section>
+
+    <!-- Recent recalls -->
+    <section class="ph-panel ph-reveal">
+        <div class="ph-panel-head">
+            <div>
+                <h3>Recent recalls</h3>
+                <p>Latest batch-level safety actions</p>
+            </div>
+            <span class="ph-badge is-danger">@Model.RecallCount total</span>
+        </div>
+
+        @if (Model.RecentRecalls.Any())
+        {
+            <ul class="ph-activity">
+                @foreach (var recall in Model.RecentRecalls)
+                {
+                    <li>
+                        <span class="ph-activity-icon is-rose"><i class="bi bi-exclamation-triangle"></i></span>
+                        <div>
+                            <strong>@recall.DrugName</strong>
+                            <span>
+                                @(string.IsNullOrEmpty(recall.BatchNumber) ? "Batch n/a" : "Batch " + recall.BatchNumber)
+                                &middot; @recall.CompanyName
+                            </span>
+                            <span class="d-block mt-1">
+                                <span class="ph-badge is-warning">@(string.IsNullOrEmpty(recall.RecallLevel) ? "Unclassified" : recall.RecallLevel)</span>
+                                <span class="d-inline-block ms-2" style="font-size:.74rem;color:var(--ph-muted);">
+                                    @recall.RecallDate.ToString("dd MMM yyyy")
+                                </span>
+                            </span>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <div class="ph-empty">
+                <i class="bi bi-shield-check"></i>
+                <h4>No recalls recorded</h4>
+                <p class="mb-0">The safety register is currently clear.</p>
+            </div>
+        }
+    </section>
+
+</div>
+
+<!-- ==================== NOTICES + COMPANIES ==================== -->
+<div class="ph-dash-grid">
+
+    <!-- Notices -->
+    <section class="ph-panel ph-reveal">
+        <div class="ph-panel-head">
+            <div>
+                <h3>Regulatory notices</h3>
+                <p>Latest announcements published to the industry</p>
+            </div>
+            <span class="ph-badge is-info">@Model.NoticeCount published</span>
+        </div>
+
+        @if (Model.RecentNotices.Any())
+        {
+            <div>
+                @foreach (var notice in Model.RecentNotices)
+                {
+                    <div class="ph-list-row">
+                        <span class="ph-avatar is-soft" style="background:#eff6ff;color:#1d4ed8;">
+                            <i class="bi bi-megaphone"></i>
+                        </span>
+                        <div style="min-width:0;flex:1;">
+                            <strong>@notice.Title</strong>
+                            <span>
+                                @(string.IsNullOrEmpty(notice.NoticeType) ? "General" : notice.NoticeType)
+                                &middot; @notice.NoticeDate.ToString("dd MMM yyyy")
+                            </span>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="ph-empty">
+                <i class="bi bi-inbox"></i>
+                <h4>No notices yet</h4>
+                <p class="mb-0">Published DDA notices will appear here.</p>
+            </div>
+        }
+    </section>
+
+    <!-- Top companies -->
+    <section class="ph-panel ph-reveal">
+        <div class="ph-panel-head">
+            <div>
+                <h3>Leading manufacturers</h3>
+                <p>Largest product portfolios</p>
+            </div>
+            <a class="ph-btn ph-btn-ghost ph-btn-sm" asp-controller="Company" asp-action="Index">
+                View all <i class="bi bi-arrow-right"></i>
+            </a>
+        </div>
+
+        @if (Model.TopCompanies.Any())
+        {
+            <div>
+                @foreach (var company in Model.TopCompanies)
+                {
+                    var max = Model.TopCompanies.Max(c => c.DrugCount);
+                    var width = max == 0 ? 0 : Math.Round(company.DrugCount * 100.0 / max);
+                    <div class="ph-list-row">
+                        <span class="ph-avatar is-soft"><i class="bi bi-building"></i></span>
+                        <div style="min-width:0;flex:1;">
+                            <strong>@company.Name</strong>
+                            <span>@(string.IsNullOrEmpty(company.Province) ? "Province n/a" : company.Province)</span>
+                            <div class="ph-progress mt-2">
+                                <span style="width:@(width.ToString("0.0") + "%")"></span>
+                            </div>
+                        </div>
+                        <span class="ph-badge">@company.DrugCount drugs</span>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="ph-empty">
+                <i class="bi bi-buildings"></i>
+                <h4>No companies yet</h4>
+                <p class="mb-0">Add your first pharmaceutical company to begin.</p>
+            </div>
+        }
+    </section>
+
+</div>
