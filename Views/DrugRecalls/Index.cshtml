@@ -171,53 +171,83 @@ else
         let selectedDrug = '';
         let selectedYear = null;
 
+        function replaceOptions(select, items, placeholder, selectedValue) {
+            select.replaceChildren();
+
+            const empty = document.createElement('option');
+            empty.value = '';
+            empty.textContent = placeholder;
+            select.appendChild(empty);
+
+            for (const item of items) {
+                const option = document.createElement('option');
+                option.value = String(item.value);
+                option.textContent = String(item.label);
+                option.selected = selectedValue !== null && String(item.value) === String(selectedValue);
+                select.appendChild(option);
+            }
+        }
+
         async function loadDrugs() {
             const res = await fetch('/DrugRecalls/GetDrugs');
             const drugs = await res.json();
-            drugEl.innerHTML = '<option value="">-- Choose a medicine --</option>' +
-                drugs.map(d => `<option value="${d}" ${d === @(Json.Serialize(drug)) ? 'selected' : ''}>${d}</option>`).join('');
-        if (@(string.IsNullOrEmpty(drug) ? "false" : "true")) {
-            selectedDrug = @(Json.Serialize(drug));
-            loadYears(selectedDrug);
+            const selectedDrugValue = @(Json.Serialize(drug));
+
+            replaceOptions(
+                drugEl,
+                drugs.map(d => ({ value: d, label: d })),
+                '-- Choose a medicine --',
+                selectedDrugValue);
+
+            if (@(string.IsNullOrEmpty(drug) ? "false" : "true")) {
+                selectedDrug = selectedDrugValue;
+                await loadYears(selectedDrug);
+            }
         }
-    }
 
-    async function loadYears(drug) {
-        yearEl.disabled = false;
-        dateEl.disabled = true;
-        btnApply.disabled = true;
-        dateEl.innerHTML = '<option value="">-- Date --</option>';
-        yearEl.innerHTML = '<option value="">-- Year --</option>';
+        async function loadYears(drug) {
+            yearEl.disabled = false;
+            dateEl.disabled = true;
+            btnApply.disabled = true;
+            replaceOptions(dateEl, [], '-- Date --', null);
+            replaceOptions(yearEl, [], '-- Year --', null);
 
-        const res = await fetch(`/DrugRecalls/GetYears?drug=${encodeURIComponent(drug)}`);
-        const years = await res.json();
-        yearEl.innerHTML += years.map(y => `<option value="${y}" ${(year.HasValue && y == year.Value) ? 'selected' : ''}>${y}</option>`).join('');
+            const res = await fetch(`/DrugRecalls/GetYears?drug=${encodeURIComponent(drug)}`);
+            const years = await res.json();
+            replaceOptions(
+                yearEl,
+                years.map(y => ({ value: y, label: y })),
+                '-- Year --',
+                null);
 
-        @if (year.HasValue)
-        {
-            <text>
-            selectedYear = @year.Value;
-            yearEl.value = @year.Value;
-            loadDates(selectedDrug, selectedYear);
-            </text>
+            @if (year.HasValue)
+            {
+                <text>
+                selectedYear = @year.Value;
+                yearEl.value = @year.Value;
+                await loadDates(selectedDrug, selectedYear);
+                </text>
+            }
         }
-    }
 
-    async function loadDates(drug, year) {
-        dateEl.disabled = false;
-        const res = await fetch(`/DrugRecalls/GetRecallDates?drug=${encodeURIComponent(drug)}&year=${year}`);
-        const dates = await res.json();
-        dateEl.innerHTML = '<option value="">-- Date --</option>' +
-            dates.map(d => `<option value="${d.date}" ${d.date === @(recallDate.HasValue ? Json.Serialize(recallDate.Value.ToString("yyyy-MM-dd")) : "\"\"") ? 'selected' : ''}>${d.label}</option>`).join('');
+        async function loadDates(drug, year) {
+            dateEl.disabled = false;
+            const res = await fetch(`/DrugRecalls/GetRecallDates?drug=${encodeURIComponent(drug)}&year=${year}`);
+            const dates = await res.json();
+            replaceOptions(
+                dateEl,
+                dates.map(d => ({ value: d.date, label: d.label })),
+                '-- Date --',
+                null);
 
-        @if (recallDate.HasValue)
-        {
-            <text>
-            dateEl.value = @Html.Raw(Json.Serialize(recallDate.Value.ToString("yyyy-MM-dd")));
-            btnApply.disabled = false;
-            </text>
+            @if (recallDate.HasValue)
+            {
+                <text>
+                dateEl.value = @Html.Raw(Json.Serialize(recallDate.Value.ToString("yyyy-MM-dd")));
+                btnApply.disabled = false;
+                </text>
+            }
         }
-    }
 
         drugEl.addEventListener('change', async () => {
             selectedDrug = drugEl.value;
