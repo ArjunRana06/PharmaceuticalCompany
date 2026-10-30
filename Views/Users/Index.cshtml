@@ -6,7 +6,22 @@
     var users = Model?.ToList() ?? new List<Project.Models.User>();
 }
 
-<!-- ==================== PAGE HEADER ==================== -->
+@if (TempData["Success"] is string success)
+{
+    <div class="ph-alert is-success ph-reveal">
+        <i class="bi bi-check2-circle"></i>
+        <div>@success</div>
+    </div>
+}
+
+@if (TempData["Error"] is string error)
+{
+    <div class="ph-alert is-warning ph-reveal">
+        <i class="bi bi-exclamation-triangle"></i>
+        <div>@error</div>
+    </div>
+}
+
 <div class="ph-page-head">
     <div>
         <h2>Console users</h2>
@@ -17,7 +32,6 @@
     </button>
 </div>
 
-<!-- ==================== USERS TABLE ==================== -->
 <div class="ph-table-wrap ph-reveal">
 
     <div class="ph-table-head">
@@ -66,7 +80,7 @@
                             <td>
                                 <div class="ph-actions">
                                     <button type="button" class="ph-btn ph-btn-outline ph-btn-sm"
-                                            data-id="@user.Id" data-name="@user.Name" data-email="@user.Email" data-password="@user.Password"
+                                            data-id="@user.Id" data-name="@user.Name" data-email="@user.Email"
                                             onclick="openEditUser(this)">
                                         <i class="bi bi-pencil"></i> Edit
                                     </button>
@@ -111,7 +125,6 @@
     </div>
 </div>
 
-<!-- ==================== ADD USER MODAL ==================== -->
 <div class="ph-modal" id="addUserModal" role="dialog" aria-modal="true" aria-labelledby="addUserTitle">
     <div class="ph-modal-panel">
         <div class="ph-modal-head">
@@ -150,7 +163,6 @@
     </div>
 </div>
 
-<!-- ==================== EDIT USER MODAL ==================== -->
 <div class="ph-modal" id="editUserModal" role="dialog" aria-modal="true" aria-labelledby="editUserTitle">
     <div class="ph-modal-panel">
         <div class="ph-modal-head">
@@ -175,8 +187,8 @@
                 </div>
 
                 <div class="ph-field" style="margin-bottom:0;">
-                    <label class="ph-label" for="editPassword">Password <span class="ph-req">*</span></label>
-                    <input class="ph-input" type="password" id="editPassword" name="Password" required />
+                    <label class="ph-label" for="editPassword">New password</label>
+                    <input class="ph-input" type="password" id="editPassword" name="Password" placeholder="Leave blank to keep current password" />
                 </div>
             </div>
 
@@ -196,7 +208,7 @@
             document.getElementById("editId").value = trigger.getAttribute("data-id");
             document.getElementById("editName").value = trigger.getAttribute("data-name");
             document.getElementById("editEmail").value = trigger.getAttribute("data-email");
-            document.getElementById("editPassword").value = trigger.getAttribute("data-password");
+            document.getElementById("editPassword").value = "";
 
             var modal = document.getElementById("editUserModal");
             modal.classList.add("is-open");

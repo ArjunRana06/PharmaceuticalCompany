@@ -1,26 +1,161 @@
+@using Project.Models
 @{
     ViewData["Title"] = "Sync Recalls";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var logs = ViewBag.Logs as List<RecallSyncLog> ?? new List<RecallSyncLog>();
+    var recent = ViewBag.RecentSynced as List<DrugRecall> ?? new List<DrugRecall>();
 }
 
-<div class="container mt-4">
-    <h2>Sync Latest Recalls from Public Feed</h2>
-    <p>Pulls latest recall data from the configured public source and upserts into the database via stored procedure. New approved recalls will appear on Home and Drug Recalls.</p>
+<div class="ph-page-head">
+    <div>
+        <h2>Sync latest recalls</h2>
+        <p>Pulls recall data from DDA Nepal and the US FDA, then upserts it through the stored procedure.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="ph-btn ph-btn-outline ph-btn-sm" asp-controller="PublicRecalls" asp-action="Index">
+            <i class="bi bi-box-arrow-up-right"></i> Public register
+        </a>
+        <a class="ph-btn ph-btn-ghost ph-btn-sm" asp-controller="PublicRecalls" asp-action="Pending">
+            <i class="bi bi-clock-history"></i> Public pending view
+        </a>
+    </div>
+</div>
 
-    @if (TempData["Message"] != null)
-    {
-        <div class="alert alert-success">@TempData["Message"]</div>
-    }
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger">@TempData["Error"]</div>
-    }
+@if (TempData["Message"] != null)
+{
+    <div class="ph-alert ph-reveal" style="margin-bottom:1.25rem;background:#ecfdf5;border-color:#a7f3d0;color:#065f46;">
+        <i class="bi bi-check2-circle"></i>
+        <div>@TempData["Message"]</div>
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="ph-alert is-warning ph-reveal" style="margin-bottom:1.25rem;">
+        <i class="bi bi-exclamation-triangle"></i>
+        <div>@TempData["Error"]</div>
+    </div>
+}
 
-    <form asp-action="SyncNow" method="post">
+<div class="ph-panel ph-reveal" style="margin-bottom:1.25rem;">
+    <form asp-action="SyncNow" method="post" class="d-flex flex-wrap align-items-center gap-3">
         @Html.AntiForgeryToken()
-        <button type="submit" class="btn btn-primary">Sync Now</button>
+        <button type="submit" class="ph-btn ph-btn-primary">
+            <i class="bi bi-arrow-repeat"></i> Sync now
+        </button>
+        <span style="color:var(--ph-muted);font-size:.86rem;">
+            The background service also runs automatically once per day at the configured local time.
+        </span>
     </form>
+</div>
 
-    <hr />
-    <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">View on Home</a>
-    <a asp-controller="DrugRecalls" asp-action="Index" class="btn btn-secondary">View All Recalls</a>
+<div class="ph-table-wrap ph-reveal" style="margin-bottom:1.25rem;">
+    <div class="ph-table-head">
+        <div>
+            <h3>Sync history</h3>
+            <p>Latest runs and their results</p>
+        </div>
+        <span class="ph-badge is-info">@logs.Count</span>
+    </div>
+    <div class="table-responsive">
+        <table class="ph-table">
+            <thead>
+                <tr>
+                    <th style="width:150px;">Started</th>
+                    <th style="width:110px;">Status</th>
+                    <th style="width:100px;">Fetched</th>
+                    <th style="width:100px;">Saved</th>
+                    <th style="width:150px;">Completed</th>
+                    <th>Message</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (logs.Any())
+                {
+                    foreach (var log in logs)
+                    {
+                        <tr>
+                            <td>@log.StartedAt.ToString("dd MMM yyyy HH:mm")</td>
+                            <td>
+                                <span class="ph-badge @(log.Status == "Success" ? "is-success" : log.Status == "Failed" ? "is-danger" : "is-warning")">
+                                    @log.Status
+                                </span>
+                            </td>
+                            <td>@log.ItemsFetched</td>
+                            <td>@log.ItemsSaved</td>
+                            <td>@(log.CompletedAt?.ToString("dd MMM yyyy HH:mm") ?? "—")</td>
+                            <td style="max-width:420px;font-size:.82rem;">@log.Message</td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6">
+                            <div class="ph-empty">
+                                <i class="bi bi-arrow-repeat"></i>
+                                <h4>No sync runs yet</h4>
+                                <p class="mb-0">Run a sync or wait for the daily background job.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="ph-table-wrap ph-reveal">
+    <div class="ph-table-head">
+        <div>
+            <h3>Recently synced records</h3>
+            <p>Records created or updated from public feeds</p>
+        </div>
+        <span class="ph-badge is-info">@recent.Count</span>
+    </div>
+    <div class="table-responsive">
+        <table class="ph-table">
+            <thead>
+                <tr>
+                    <th>Medicine</th>
+                    <th>Batch</th>
+                    <th style="width:120px;">Date</th>
+                    <th style="width:140px;">Source</th>
+                    <th>Company</th>
+                    <th style="width:100px;">Details</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (recent.Any())
+                {
+                    foreach (var recall in recent)
+                    {
+                        <tr>
+                            <td><strong>@recall.DrugName</strong></td>
+                            <td>@(string.IsNullOrEmpty(recall.BatchNumber) ? "n/a" : recall.BatchNumber)</td>
+                            <td>@recall.RecallDate.ToString("dd MMM yyyy")</td>
+                            <td><span class="ph-badge is-info">@(recall.SourceName ?? "Feed")</span></td>
+                            <td>@(recall.Company?.Name ?? "Unassigned")</td>
+                            <td>
+                                <a class="ph-btn ph-btn-outline ph-btn-sm" asp-controller="PublicRecalls" asp-action="Details" asp-route-id="@recall.Id">
+                                    <i class="bi bi-file-earmark-text"></i> View
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="6">
+                            <div class="ph-empty">
+                                <i class="bi bi-cloud-download"></i>
+                                <h4>No synced records yet</h4>
+                                <p class="mb-0">Synced records will appear here.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>

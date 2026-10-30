@@ -1,0 +1,91 @@
+@model Project.Models.DrugRecall
+
+@{
+    ViewData["Title"] = "Recall Details";
+    var isPending = !Model.IsApproved && Model.ApprovalStatus == "Pending";
+}
+
+<section class="ph-section" style="padding-top:2.5rem;">
+    <div class="ph-container">
+        <div class="ph-section-head ph-reveal" style="display:flex;justify-content:space-between;gap:1rem;align-items:flex-end;flex-wrap:wrap;">
+            <div>
+                <span class="ph-eyebrow">Recall record</span>
+                <h2>@Model.DrugName</h2>
+                <p>
+                    @Model.RecallDate.ToString("dd MMM yyyy")
+                    &middot; @(Model.SourceName ?? "Registry")
+                </p>
+            </div>
+            <div class="d-flex gap-2">
+                <a class="ph-btn ph-btn-ghost ph-btn-sm" asp-action="@(isPending ? "Pending" : "Index")">
+                    <i class="bi bi-arrow-left"></i> Back
+                </a>
+            </div>
+        </div>
+
+        @if (isPending)
+        {
+            <div class="ph-alert is-warning ph-reveal" style="margin-bottom:1.25rem;">
+                <i class="bi bi-clock"></i>
+                <div>
+                    <strong>Pending review.</strong>
+                    This recall has not been approved and should not be treated as a verified regulatory finding.
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="ph-alert ph-reveal" style="margin-bottom:1.25rem;background:#ecfdf5;border-color:#a7f3d0;color:#065f46;">
+                <i class="bi bi-patch-check"></i>
+                <div>
+                    <strong>Approved record.</strong>
+                    This recall is part of the public safety register.
+                </div>
+            </div>
+        }
+
+        <div class="ph-grid ph-grid-2 ph-reveal">
+            <div class="ph-card">
+                <h4>Medicine</h4>
+                <p><strong>Drug name:</strong> @Model.DrugName</p>
+                <p><strong>Batch number:</strong> @(string.IsNullOrEmpty(Model.BatchNumber) ? "n/a" : Model.BatchNumber)</p>
+                <p><strong>Recall date:</strong> @Model.RecallDate.ToString("dd MMM yyyy")</p>
+                <p><strong>Recall level:</strong> @(string.IsNullOrEmpty(Model.RecallLevel) ? "n/a" : Model.RecallLevel)</p>
+                <p><strong>Status:</strong> @(isPending ? "Pending approval" : "Approved")</p>
+            </div>
+
+            <div class="ph-card">
+                <h4>Company &amp; source</h4>
+                <p><strong>Company:</strong> @(Model.Company?.Name ?? "Unassigned")</p>
+                <p><strong>Province:</strong> @(string.IsNullOrEmpty(Model.Company?.Province) ? "n/a" : Model.Company.Province)</p>
+                <p><strong>Source:</strong> @(Model.SourceName ?? "Registry")</p>
+                @if (!string.IsNullOrEmpty(Model.SourceUrl))
+                {
+                    <p>
+                        <strong>Official source:</strong>
+                        <a href="@Model.SourceUrl" target="_blank" rel="noopener noreferrer">
+                            Open record <i class="bi bi-box-arrow-up-right"></i>
+                        </a>
+                    </p>
+                }
+            </div>
+        </div>
+
+        <div class="ph-card ph-reveal" style="margin-top:1.25rem;">
+            <h4>Reason / notice</h4>
+            <p>@(string.IsNullOrEmpty(Model.Reason) ? "No reason supplied." : Model.Reason)</p>
+
+            @if (!string.IsNullOrEmpty(Model.SideEffects))
+            {
+                <h4 style="margin-top:1.25rem;">Side effects</h4>
+                <p>@Model.SideEffects</p>
+            }
+        </div>
+
+        <p style="margin-top:1.25rem;color:var(--ph-muted);font-size:.82rem;">
+            Last public feed sync:
+            @(ViewBag.LastSyncAt is DateTime lastSync ? lastSync.ToString("dd MMM yyyy HH:mm") : "not run yet").
+            Always verify against the official source before taking regulatory action.
+        </p>
+    </div>
+</section>

@@ -4,7 +4,6 @@
     ViewData["Title"] = "Pharmaceutical Intelligence Platform";
 }
 
-<!-- ==================== HERO ==================== -->
 <section class="ph-hero">
     <div class="ph-container ph-hero-grid">
 
@@ -75,7 +74,6 @@
     </div>
 </section>
 
-<!-- ==================== TRUST STRIP ==================== -->
 <section class="ph-trust">
     <div class="ph-container">
         <div class="ph-trust-grid">
@@ -88,7 +86,6 @@
     </div>
 </section>
 
-<!-- ==================== PLATFORM FEATURES ==================== -->
 <section class="ph-section" id="platform">
     <div class="ph-container">
 
@@ -170,7 +167,6 @@
     </div>
 </section>
 
-<!-- ==================== COMPLIANCE / STEPS ==================== -->
 <section class="ph-section ph-section-dark" id="compliance">
     <div class="ph-container">
 
@@ -206,7 +202,6 @@
     </div>
 </section>
 
-<!-- ==================== INSIGHTS / STATS ==================== -->
 <section class="ph-section ph-section-alt" id="insights">
     <div class="ph-container">
 
@@ -258,7 +253,6 @@
     </div>
 </section>
 
-<!-- ==================== FEATURED COMPANIES ==================== -->
 <section class="ph-section" id="companies">
     <div class="ph-container">
 
@@ -308,14 +302,32 @@
     </div>
 </section>
 
-<!-- ==================== LATEST RECALLS ==================== -->
 <section class="ph-section" id="recalls">
     <div class="ph-container">
 
-        <div class="ph-section-head ph-reveal">
-            <span class="ph-eyebrow">Safety watch</span>
-            <h2>Latest batch recalls</h2>
-            <p>Live recall feed from the collected DDA and laboratory data.</p>
+        <div class="ph-section-head ph-reveal" style="display:flex;justify-content:space-between;gap:1rem;align-items:flex-end;flex-wrap:wrap;">
+            <div>
+                <span class="ph-eyebrow">Safety watch</span>
+                <h2>Latest batch recalls</h2>
+                <p>
+                    Live recall feed from DDA Nepal and the US FDA.
+                    <span style="display:block;font-size:.8rem;color:var(--ph-muted);margin-top:.35rem;">
+                        Last sync: @(Model.LastRecallSyncAt.HasValue ? Model.LastRecallSyncAt.Value.ToString("dd MMM yyyy HH:mm") : "not run yet")
+                    </span>
+                </p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <a class="ph-btn ph-btn-outline ph-btn-sm" asp-controller="PublicRecalls" asp-action="Index">
+                    <i class="bi bi-list-ul"></i> Full register
+                </a>
+                <a class="ph-btn ph-btn-ghost ph-btn-sm" asp-controller="PublicRecalls" asp-action="Pending">
+                    <i class="bi bi-clock-history"></i> Pending approvals
+                    @if (Model.PendingRecallCount > 0)
+                    {
+                        <span class="ph-badge is-warning ms-1">@Model.PendingRecallCount</span>
+                    }
+                </a>
+            </div>
         </div>
 
         <div class="ph-panel ph-reveal">
@@ -356,7 +368,57 @@
     </div>
 </section>
 
-<!-- ==================== REGULATORY NOTICES ==================== -->
+<section class="ph-section" id="pending-approvals">
+    <div class="ph-container">
+
+        <div class="ph-section-head ph-reveal" style="display:flex;justify-content:space-between;gap:1rem;align-items:flex-end;flex-wrap:wrap;">
+            <div>
+                <span class="ph-eyebrow">Transparency</span>
+                <h2>Pending recall approvals</h2>
+                <p>Submissions currently waiting for administrator review. These are not yet verified.</p>
+            </div>
+            <a class="ph-btn ph-btn-outline ph-btn-sm" asp-controller="PublicRecalls" asp-action="Pending">
+                View all pending @(Model.PendingRecallCount > 0 ? $"({Model.PendingRecallCount})" : "")
+            </a>
+        </div>
+
+        <div class="ph-panel ph-reveal">
+            @if (Model.RecentPendingRecalls.Any())
+            {
+                <ul class="ph-activity">
+                    @foreach (var recall in Model.RecentPendingRecalls)
+                    {
+                        <li>
+                            <span class="ph-activity-icon is-amber"><i class="bi bi-clock-history"></i></span>
+                            <div>
+                                <strong>@recall.DrugName</strong>
+                                <span>
+                                    @(string.IsNullOrEmpty(recall.BatchNumber) ? "Batch n/a" : "Batch " + recall.BatchNumber)
+                                    &middot; @recall.CompanyName
+                                </span>
+                                <span class="d-block mt-1">
+                                    <span class="ph-badge is-warning">Pending review</span>
+                                    <a class="ms-2" style="font-size:.78rem;" asp-controller="PublicRecalls" asp-action="Details" asp-route-id="@recall.Id">
+                                        View details <i class="bi bi-arrow-right"></i>
+                                    </a>
+                                </span>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
+            else
+            {
+                <div class="ph-empty">
+                    <i class="bi bi-check2-circle"></i>
+                    <h4>No pending approvals</h4>
+                    <p class="mb-0">All recall submissions have been reviewed.</p>
+                </div>
+            }
+        </div>
+    </div>
+</section>
+
 <section class="ph-section" id="notices">
     <div class="ph-container">
 
@@ -398,7 +460,6 @@
     </div>
 </section>
 
-<!-- ==================== WHY / TESTIMONIAL ==================== -->
 <section class="ph-section">
     <div class="ph-container">
 
@@ -431,7 +492,6 @@
     </div>
 </section>
 
-<!-- ==================== CTA ==================== -->
 <section class="ph-section ph-section-tight">
     <div class="ph-container">
         <div class="ph-card ph-card-pad ph-reveal"

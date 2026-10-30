@@ -1,0 +1,147 @@
+@model Project.Models.PublicRecallListViewModel
+
+@{
+    ViewData["Title"] = "Pending Recall Approvals";
+    var startItem = Model.TotalCount == 0 ? 0 : ((Model.Page - 1) * Model.PageSize) + 1;
+    var endItem = Math.Min(Model.Page * Model.PageSize, Model.TotalCount);
+}
+
+<section class="ph-section" style="padding-top:2.5rem;">
+    <div class="ph-container">
+        <div class="ph-section-head ph-reveal" style="display:flex;justify-content:space-between;gap:1rem;align-items:flex-end;flex-wrap:wrap;">
+            <div>
+                <span class="ph-eyebrow">Transparency</span>
+                <h2>Pending recall approvals</h2>
+                <p>Recall submissions that are currently waiting for administrator review.</p>
+            </div>
+            <a class="ph-btn ph-btn-ghost ph-btn-sm" asp-action="Index">
+                <i class="bi bi-arrow-left"></i> Approved register
+            </a>
+        </div>
+
+        <div class="ph-alert is-warning ph-reveal" style="margin-bottom:1.25rem;">
+            <i class="bi bi-clock"></i>
+            <div>
+                <strong>Pending review.</strong>
+                These records are published for transparency and have <strong>not</strong> been verified or approved.
+                Do not treat them as confirmed regulatory findings.
+            </div>
+        </div>
+
+        <div class="ph-panel ph-reveal" style="margin-bottom:1.25rem;">
+            <div class="d-flex flex-wrap justify-content-between gap-3" style="align-items:center;">
+                <div>
+                    <strong>@Model.TotalCount pending submission(s)</strong>
+                    @if (Model.TotalCount > 0)
+                    {
+                        <span style="color:var(--ph-muted);"> showing @startItem–@endItem</span>
+                    }
+                </div>
+                <div style="color:var(--ph-muted);font-size:.85rem;">
+                    <i class="bi bi-arrow-repeat"></i>
+                    Last sync: @(Model.LastSyncAt.HasValue ? Model.LastSyncAt.Value.ToString("dd MMM yyyy HH:mm") : "not run yet")
+                </div>
+            </div>
+        </div>
+
+        <div class="ph-panel ph-reveal" style="margin-bottom:1.25rem;">
+            <form method="get" asp-action="Pending" class="d-flex flex-wrap align-items-end gap-3">
+                <div style="flex:1 1 320px;min-width:220px;">
+                    <label class="ph-label" for="q">Search medicine, company or reason</label>
+                    <input class="ph-input" id="q" name="q" type="search" value="@Model.Query" placeholder="Search pending submissions" />
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="ph-btn ph-btn-primary ph-btn-sm" type="submit">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                    <a class="ph-btn ph-btn-ghost ph-btn-sm" asp-action="Pending">Reset</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="ph-table-wrap ph-reveal">
+            <div class="table-responsive">
+                <table class="ph-table">
+                    <thead>
+                        <tr>
+                            <th style="width:130px;">Submitted</th>
+                            <th>Medicine</th>
+                            <th>Batch</th>
+                            <th style="width:120px;">Recall date</th>
+                            <th>Company</th>
+                            <th style="width:120px;">Level</th>
+                            <th style="width:110px;">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Items.Any())
+                        {
+                            foreach (var r in Model.Items)
+                            {
+                                <tr>
+                                    <td>
+                                        <strong style="font-size:.82rem;">@(r.SubmittedAt?.ToString("dd MMM yyyy") ?? r.RecallDate.ToString("dd MMM yyyy"))</strong>
+                                    </td>
+                                    <td>
+                                        <strong>@r.DrugName</strong>
+                                        @if (!string.IsNullOrWhiteSpace(r.Reason))
+                                        {
+                                            <div style="max-width:420px;font-size:.8rem;color:var(--ph-muted);margin-top:.2rem;">
+                                                @r.Reason
+                                            </div>
+                                        }
+                                    </td>
+                                    <td><span class="ph-badge is-muted">@(string.IsNullOrEmpty(r.BatchNumber) ? "n/a" : r.BatchNumber)</span></td>
+                                    <td>@r.RecallDate.ToString("dd MMM yyyy")</td>
+                                    <td>@(r.Company?.Name ?? "Unassigned")</td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(r.RecallLevel))
+                                        {
+                                            <span class="ph-badge is-warning">@r.RecallLevel</span>
+                                        }
+                                        else
+                                        {
+                                            <span style="color:var(--ph-muted);font-size:.82rem;">n/a</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <a class="ph-btn ph-btn-outline ph-btn-sm" asp-action="Details" asp-route-id="@r.Id">
+                                            <i class="bi bi-file-earmark-text"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7">
+                                    <div class="ph-empty">
+                                        <i class="bi bi-check2-circle"></i>
+                                        <h4>No pending approvals</h4>
+                                        <p class="mb-0">There are currently no recall submissions waiting for review.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav class="d-flex justify-content-center gap-2 mt-4" aria-label="Pending recall pagination">
+                <a class="ph-btn ph-btn-ghost ph-btn-sm @(Model.Page <= 1 ? "disabled" : "")"
+                   asp-action="Pending" asp-route-q="@Model.Query" asp-route-page="@(Model.Page - 1)">
+                    <i class="bi bi-chevron-left"></i> Previous
+                </a>
+                <span class="ph-btn ph-btn-outline ph-btn-sm">Page @Model.Page of @Model.TotalPages</span>
+                <a class="ph-btn ph-btn-ghost ph-btn-sm @(Model.Page >= Model.TotalPages ? "disabled" : "")"
+                   asp-action="Pending" asp-route-q="@Model.Query" asp-route-page="@(Model.Page + 1)">
+                    Next <i class="bi bi-chevron-right"></i>
+                </a>
+            </nav>
+        }
+    </div>
+</section>

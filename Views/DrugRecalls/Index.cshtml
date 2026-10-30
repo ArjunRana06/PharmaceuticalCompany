@@ -30,7 +30,6 @@
     </div>
 </div>
 
-<!-- ==================== CASCADING SEARCH ==================== -->
 <div class="ph-panel ph-reveal" style="margin-bottom:1.25rem;">
     <form id="cascadeForm" class="d-flex flex-wrap align-items-end gap-3">
         <div style="flex:1 1 280px;min-width:200px;">
@@ -62,7 +61,6 @@
 
 @if ((bool)(ViewBag.ShowAll ?? false) || !string.IsNullOrEmpty(drug) || year.HasValue || recallDate.HasValue)
 {
-    <!-- ==================== BASIC RESULTS ==================== -->
     <div class="ph-table-wrap ph-reveal">
         <div class="ph-table-head">
             <div>
@@ -90,10 +88,10 @@
                     {
                         foreach (var r in recalls)
                         {
-                            var id = (int)r.GetType().GetProperty("Id")!.GetValue(r)!;
-                            var drugName = (string)r.GetType().GetProperty("DrugName")!.GetValue(r)!;
+                            var id = (int)(r.GetType().GetProperty("Id")!.GetValue(r) ?? 0);
+                            var drugName = (string?)r.GetType().GetProperty("DrugName")!.GetValue(r) ?? string.Empty;
                             var batch = (string?)r.GetType().GetProperty("BatchNumber")!.GetValue(r);
-                            var recallDt = (DateTime)r.GetType().GetProperty("RecallDate")!.GetValue(r);
+                            var recallDt = (DateTime)(r.GetType().GetProperty("RecallDate")!.GetValue(r) ?? DateTime.MinValue);
                             var company = (string?)r.GetType().GetProperty("CompanyName")!.GetValue(r);
                             var reason = (string?)r.GetType().GetProperty("Reason")!.GetValue(r);
                             var level = (string?)r.GetType().GetProperty("RecallLevel")!.GetValue(r);

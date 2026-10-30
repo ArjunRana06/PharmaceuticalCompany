@@ -16,7 +16,6 @@ public class CompanyController : Controller
         _context = context;
     }
 
-    // READ
     public async Task<IActionResult> Index()
     {
         var companies = await _context.Companies.AsNoTracking()
@@ -26,13 +25,11 @@ public class CompanyController : Controller
         return View(companies);
     }
 
-    // CREATE - GET
     public IActionResult Create()
     {
         return View();
     }
 
-    // CREATE - POST
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(Company company)
@@ -48,7 +45,6 @@ public class CompanyController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // EDIT - GET
     public async Task<IActionResult> Edit(int? id)
     {
         if (id == null)
@@ -66,7 +62,6 @@ public class CompanyController : Controller
         return View(company);
     }
 
-    // EDIT - POST
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, Company company)
@@ -99,7 +94,6 @@ public class CompanyController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-    // DELETE - GET confirmation
     public async Task<IActionResult> Delete(int? id)
     {
         if (id == null)
@@ -118,7 +112,6 @@ public class CompanyController : Controller
         return View(company);
     }
 
-    // DELETE - POST
     [HttpPost, ActionName("Delete")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> DeleteConfirmed(int id)

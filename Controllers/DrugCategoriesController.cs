@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Project.Data;
@@ -19,7 +18,7 @@ public class DrugCategoriesController : Controller
 
     public async Task<IActionResult> Index()
     {
-        var model = await _context.DrugCategories
+        var model = await _context.DrugCategories.AsNoTracking()
             .OrderBy(c => c.SortOrder)
             .ToListAsync();
 

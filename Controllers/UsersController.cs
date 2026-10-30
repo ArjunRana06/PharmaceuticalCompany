@@ -3,126 +3,109 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Project.Data;
 using Project.Models;
-using System.Net.Http.Json;
+using Project.Services;
 
 namespace Project.Controllers;
 
 [Authorize(Roles = "Admin")]
 public class UsersController : Controller
 {
+    private readonly ApplicationDbContext _context;
+    private readonly PasswordService _passwordService;
 
-private readonly ApplicationDbContext _context;
-private readonly IHttpClientFactory _httpClientFactory;
-
-public UsersController(
-    ApplicationDbContext context,
-    IHttpClientFactory httpClientFactory)
-{
-    _context = context;
-    _httpClientFactory = httpClientFactory;
-}
-
-    // =========================
-    // READ - Display all users
-    // =========================
-     
-[HttpGet]
-public async Task<IActionResult> Index()
-{
-    var users = await _context.Users.AsNoTracking().ToListAsync();
-    return View(users);
-}
-
-
-[HttpGet]
-public async Task<IActionResult> FromApi()
-{
-    var client = _httpClientFactory.CreateClient();
-
-    try
+    public UsersController(ApplicationDbContext context, PasswordService passwordService)
     {
-        var users = await client.GetFromJsonAsync<List<ApiUser>>(
-            "http://localhost:5275/api/user"
-        );
-
-        return Ok(users ?? new List<ApiUser>());
-        // return View(users ?? new List<ApiUser>());
+        _context = context;
+        _passwordService = passwordService;
     }
-    catch (HttpRequestException)
+
+    [HttpGet]
+    public async Task<IActionResult> Index()
     {
-        return StatusCode(503, new
-        {
-            message = "Could not connect to the User API."
-        });
+        return View(await GetUsersAsync());
     }
-}
 
-
-    // =========================
-    // CREATE - Add user
-    // =========================
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Create(User user)
     {
-        if (!ModelState.IsValid)
-        {
-            var users = await _context.Users.AsNoTracking().ToListAsync();
+        user.Name = user.Name?.Trim() ?? string.Empty;
+        user.Email = user.Email?.Trim() ?? string.Empty;
+        user.Password ??= string.Empty;
 
-            return View("Index", users);
+        if (user.Password.Length < 8)
+        {
+            ModelState.AddModelError(nameof(Project.Models.User.Password), "Password must be at least 8 characters.");
         }
 
-        _context.Users.Add(user);
+        if (await _context.Users.AnyAsync(u => u.Email == user.Email))
+        {
+            ModelState.AddModelError(nameof(Project.Models.User.Email), "A user with this email already exists.");
+        }
 
+        if (!ModelState.IsValid)
+        {
+            TempData["Error"] = GetModelErrors();
+            return View("Index", await GetUsersAsync());
+        }
+
+        user.Password = _passwordService.Hash(user, user.Password);
+        user.Role = "User";
+        _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
+        TempData["Success"] = "User created.";
         return RedirectToAction(nameof(Index));
     }
 
-
-    // =========================
-    // UPDATE - Edit user
-    // =========================
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(User user)
     {
-        if (!ModelState.IsValid)
-        {
-            var users = await _context.Users.AsNoTracking().ToListAsync();
-
-            return View("Index", users);
-        }
-
-        var existingUser = await _context.Users
-            .FindAsync(user.Id);
-
+        var existingUser = await _context.Users.FindAsync(user.Id);
         if (existingUser == null)
         {
             return NotFound();
         }
 
+        user.Name = user.Name?.Trim() ?? string.Empty;
+        user.Email = user.Email?.Trim() ?? string.Empty;
+
+        if (await _context.Users.AnyAsync(u => u.Id != user.Id && u.Email == user.Email))
+        {
+            ModelState.AddModelError(nameof(Project.Models.User.Email), "A user with this email already exists.");
+        }
+
+        if (!string.IsNullOrWhiteSpace(user.Password) && user.Password.Length < 8)
+        {
+            ModelState.AddModelError(nameof(Project.Models.User.Password), "Password must be at least 8 characters.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            TempData["Error"] = GetModelErrors();
+            return View("Index", await GetUsersAsync());
+        }
+
         existingUser.Name = user.Name;
         existingUser.Email = user.Email;
-        existingUser.Password = user.Password;
+
+        if (!string.IsNullOrWhiteSpace(user.Password))
+        {
+            existingUser.Password = _passwordService.Hash(existingUser, user.Password);
+        }
 
         await _context.SaveChangesAsync();
 
+        TempData["Success"] = "User updated.";
         return RedirectToAction(nameof(Index));
     }
 
-
-    // =========================
-    // DELETE - Delete user
-    // =========================
     [HttpPost]
     [ValidateAntiForgeryToken]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
-        var user = await _context.Users
-            .FindAsync(id);
-
+        var user = await _context.Users.FindAsync(id);
         if (user == null)
         {
             return NotFound();
@@ -135,10 +118,25 @@ public async Task<IActionResult> FromApi()
         }
 
         _context.Users.Remove(user);
-
         await _context.SaveChangesAsync();
 
         TempData["Success"] = "User deleted.";
         return RedirectToAction(nameof(Index));
+    }
+
+    private Task<List<User>> GetUsersAsync()
+    {
+        return _context.Users.AsNoTracking()
+            .OrderBy(u => u.Name)
+            .ToListAsync();
+    }
+
+    private string GetModelErrors()
+    {
+        return string.Join(" ", ModelState.Values
+            .SelectMany(v => v.Errors)
+            .Select(e => e.ErrorMessage)
+            .Where(m => !string.IsNullOrWhiteSpace(m))
+            .Distinct());
     }
 }

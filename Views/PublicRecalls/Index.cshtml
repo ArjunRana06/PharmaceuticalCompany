@@ -1,0 +1,157 @@
+@model Project.Models.PublicRecallListViewModel
+
+@{
+    ViewData["Title"] = "Drug Recall Register";
+    var startItem = Model.TotalCount == 0 ? 0 : ((Model.Page - 1) * Model.PageSize) + 1;
+    var endItem = Math.Min(Model.Page * Model.PageSize, Model.TotalCount);
+}
+
+<section class="ph-section" style="padding-top:2.5rem;">
+    <div class="ph-container">
+        <div class="ph-section-head ph-reveal" style="display:flex;justify-content:space-between;gap:1rem;align-items:flex-end;flex-wrap:wrap;">
+            <div>
+                <span class="ph-eyebrow">Public safety register</span>
+                <h2>Drug recall register</h2>
+                <p>Approved recalls from the registry and live public sources.</p>
+            </div>
+            <div class="d-flex flex-wrap gap-2">
+                <a class="ph-btn ph-btn-outline ph-btn-sm" asp-action="Pending">
+                    <i class="bi bi-clock-history"></i> Pending approvals
+                    @if (Model.PendingCount > 0)
+                    {
+                        <span class="ph-badge is-warning ms-1">@Model.PendingCount</span>
+                    }
+                </a>
+                <a class="ph-btn ph-btn-ghost ph-btn-sm" asp-controller="Home" asp-action="Index">
+                    <i class="bi bi-arrow-left"></i> Home
+                </a>
+            </div>
+        </div>
+
+        <div class="ph-panel ph-reveal" style="margin-bottom:1.25rem;">
+            <div class="d-flex flex-wrap justify-content-between gap-3" style="align-items:center;">
+                <div>
+                    <strong>@Model.TotalCount recall(s)</strong>
+                    @if (Model.TotalCount > 0)
+                    {
+                        <span style="color:var(--ph-muted);"> showing @startItem–@endItem</span>
+                    }
+                </div>
+                <div style="color:var(--ph-muted);font-size:.85rem;">
+                    <i class="bi bi-arrow-repeat"></i>
+                    Last sync:
+                    @(Model.LastSyncAt.HasValue
+                        ? Model.LastSyncAt.Value.ToString("dd MMM yyyy HH:mm")
+                        : "not run yet")
+                </div>
+            </div>
+        </div>
+
+        <div class="ph-panel ph-reveal" style="margin-bottom:1.25rem;">
+            <form method="get" asp-action="Index" class="d-flex flex-wrap align-items-end gap-3">
+                <div style="flex:1 1 320px;min-width:220px;">
+                    <label class="ph-label" for="q">Search medicine, company or reason</label>
+                    <input class="ph-input" id="q" name="q" type="search" value="@Model.Query" placeholder="e.g. Ondansetron, batch, company" />
+                </div>
+                <div style="flex:0 1 190px;min-width:160px;">
+                    <label class="ph-label" for="level">Recall level</label>
+                    <select class="ph-select" id="level" name="level">
+                        <option value="">All levels</option>
+                        <option value="Class I" selected="@(Model.Level == "Class I")">Class I</option>
+                        <option value="Class II" selected="@(Model.Level == "Class II")">Class II</option>
+                        <option value="Class III" selected="@(Model.Level == "Class III")">Class III</option>
+                    </select>
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="ph-btn ph-btn-primary ph-btn-sm" type="submit">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                    <a class="ph-btn ph-btn-ghost ph-btn-sm" asp-action="Index">Reset</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="ph-table-wrap ph-reveal">
+            <div class="table-responsive">
+                <table class="ph-table">
+                    <thead>
+                        <tr>
+                            <th style="width:120px;">Date</th>
+                            <th>Recalled product</th>
+                            <th>Batch</th>
+                            <th>Company</th>
+                            <th style="width:120px;">Level</th>
+                            <th style="width:120px;">Source</th>
+                            <th style="width:110px;">Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.Items.Any())
+                        {
+                            foreach (var r in Model.Items)
+                            {
+                                <tr>
+                                    <td><strong style="font-size:.86rem;">@r.RecallDate.ToString("dd MMM yyyy")</strong></td>
+                                    <td>
+                                        <strong>@r.DrugName</strong>
+                                        @if (!string.IsNullOrWhiteSpace(r.Reason))
+                                        {
+                                            <div style="max-width:420px;font-size:.8rem;color:var(--ph-muted);margin-top:.2rem;">
+                                                @r.Reason
+                                            </div>
+                                        }
+                                    </td>
+                                    <td><span class="ph-badge is-muted">@(string.IsNullOrEmpty(r.BatchNumber) ? "n/a" : r.BatchNumber)</span></td>
+                                    <td>@(r.Company?.Name ?? "Unassigned")</td>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(r.RecallLevel))
+                                        {
+                                            <span class="ph-badge is-warning">@r.RecallLevel</span>
+                                        }
+                                        else
+                                        {
+                                            <span style="color:var(--ph-muted);font-size:.82rem;">n/a</span>
+                                        }
+                                    </td>
+                                    <td><span class="ph-badge is-info">@(r.SourceName ?? "Registry")</span></td>
+                                    <td>
+                                        <a class="ph-btn ph-btn-outline ph-btn-sm" asp-action="Details" asp-route-id="@r.Id">
+                                            <i class="bi bi-file-earmark-text"></i> View
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7">
+                                    <div class="ph-empty">
+                                        <i class="bi bi-shield-check"></i>
+                                        <h4>No recalls found</h4>
+                                        <p class="mb-0">No approved recalls match the current filters.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <nav class="d-flex justify-content-center gap-2 mt-4" aria-label="Recall pagination">
+                <a class="ph-btn ph-btn-ghost ph-btn-sm @(Model.Page <= 1 ? "disabled" : "")"
+                   asp-action="Index" asp-route-q="@Model.Query" asp-route-level="@Model.Level" asp-route-page="@(Model.Page - 1)">
+                    <i class="bi bi-chevron-left"></i> Previous
+                </a>
+                <span class="ph-btn ph-btn-outline ph-btn-sm">Page @Model.Page of @Model.TotalPages</span>
+                <a class="ph-btn ph-btn-ghost ph-btn-sm @(Model.Page >= Model.TotalPages ? "disabled" : "")"
+                   asp-action="Index" asp-route-q="@Model.Query" asp-route-level="@Model.Level" asp-route-page="@(Model.Page + 1)">
+                    Next <i class="bi bi-chevron-right"></i>
+                </a>
+            </nav>
+        }
+    </div>
+</section>

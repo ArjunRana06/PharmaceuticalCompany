@@ -26,7 +26,6 @@
 
 <div class="ph-admin">
 
-    <!-- ==================== SIDEBAR ==================== -->
     <aside class="ph-sidebar" id="phSidebar">
 
         <a class="ph-sidebar-brand" asp-controller="@(User.IsInRole("Admin") ? "Dashboard" : "DrugRecalls")" asp-action="Index">
@@ -110,6 +109,16 @@
                         <i class="bi bi-clipboard-check"></i> Recall approvals
                     </a>
                 </li>
+                <li>
+                    <a asp-controller="RecallsSync" asp-action="Index" class="@(currentController == "recallssync" ? "is-active" : "")">
+                        <i class="bi bi-arrow-repeat"></i> Recall sync
+                    </a>
+                </li>
+                <li>
+                    <a asp-controller="RecallAgent" asp-action="Index" class="@(currentController == "recallagent" ? "is-active" : "")">
+                        <i class="bi bi-stars"></i> AI recall agent
+                    </a>
+                </li>
             } else {
                 <li>
                     <a asp-controller="DrugRecalls" asp-action="Create" class="@(currentController == "drugrecalls" && ViewContext.RouteData.Values["action"]?.ToString() == "Create" ? "is-active" : "")">
@@ -152,7 +161,6 @@
 
     <div class="ph-sidebar-backdrop" id="phSidebarBackdrop"></div>
 
-    <!-- ==================== MAIN ==================== -->
     <div class="ph-admin-main">
 
         <header class="ph-topbar">

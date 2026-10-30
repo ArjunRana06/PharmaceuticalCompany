@@ -21,7 +21,6 @@
 </head>
 <body>
 
-    <!-- ================= ANNOUNCEMENT BAR ================= -->
     <div class="ph-announce">
         <div class="ph-container ph-announce-inner">
             <span>
@@ -35,7 +34,6 @@
         </div>
     </div>
 
-    <!-- ================= HEADER ================= -->
     <header class="ph-header">
         <div class="ph-container ph-nav">
 
@@ -59,7 +57,8 @@
                 <li><a href="/#platform">Platform</a></li>
                 <li><a href="/#compliance">Compliance</a></li>
                 <li><a href="/#insights">Insights</a></li>
-                <li><a asp-controller="Company" asp-action="Index">Companies</a></li>
+                <li><a asp-controller="PublicRecalls" asp-action="Index">Recalls</a></li>
+                <li><a asp-controller="PublicRecalls" asp-action="Pending">Pending approvals</a></li>
                 <li><a asp-controller="Home" asp-action="Privacy">Privacy</a></li>
             </ul>
 
@@ -87,12 +86,10 @@
         </div>
     </header>
 
-    <!-- ================= MAIN ================= -->
     <main role="main">
         @RenderBody()
     </main>
 
-    <!-- ================= FOOTER ================= -->
     <footer class="ph-footer">
         <div class="ph-container">
             <div class="ph-footer-grid">
@@ -154,7 +151,7 @@
                     <h4>Company</h4>
                     <ul>
                         <li><a asp-controller="Home" asp-action="Index">About us</a></li>
-                        <li><a asp-controller="Company" asp-action="Index">Partner companies</a></li>
+                        <li><a asp-controller="PublicRecalls" asp-action="Index">Recall register</a></li>
                         <li><a asp-controller="Users" asp-action="Index">Team</a></li>
                         <li><a asp-controller="Home" asp-action="Privacy">Privacy policy</a></li>
                     </ul>

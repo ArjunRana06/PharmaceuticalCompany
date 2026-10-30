@@ -5,7 +5,6 @@
 
 <div class="ph-auth">
 
-    <!-- ==================== BRAND SIDE ==================== -->
     <aside class="ph-auth-aside">
 
         <a class="ph-brand" asp-controller="Home" asp-action="Index" style="color:#fff;">
@@ -56,7 +55,6 @@
 
     </aside>
 
-    <!-- ==================== FORM SIDE ==================== -->
     <div class="ph-auth-main">
         <div class="ph-auth-card">
 
@@ -80,6 +78,7 @@
             }
 
             <form method="post" asp-action="LoginUser">
+                @Html.AntiForgeryToken()
 
                 <div class="ph-field">
                     <label class="ph-label" for="email">
@@ -108,10 +107,9 @@
 
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
                     <label class="ph-checkbox mb-0">
-                        <input type="checkbox" name="remember" />
+                        <input type="checkbox" name="remember" value="true" />
                         Keep me signed in
                     </label>
-                    <a href="#" style="font-size:.85rem;font-weight:600;">Forgot password?</a>
                 </div>
 
                 <button class="ph-btn ph-btn-primary ph-btn-block ph-btn-lg" type="submit" style="margin-top:1.15rem;">
@@ -120,7 +118,7 @@
             </form>
 
             <div class="ph-auth-foot">
-                Need an account? <a href="#">Request access from your administrator</a>
+                Need an account? Contact your administrator to request access.
             </div>
 
             <div class="text-center mt-3">

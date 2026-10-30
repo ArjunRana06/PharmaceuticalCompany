@@ -181,7 +181,7 @@ namespace Project.Migrations
 
                     b.Property<string>("ApprovalStatus")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<DateTime?>("ApprovedAt")
                         .HasColumnType("datetime2");
@@ -192,12 +192,16 @@ namespace Project.Migrations
                     b.Property<string>("BatchNumber")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("CompanyId")
+                    b.Property<int?>("CompanyId")
                         .HasColumnType("int");
 
                     b.Property<string>("DrugName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ExternalId")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<bool>("IsApproved")
                         .HasColumnType("bit");
@@ -217,8 +221,13 @@ namespace Project.Migrations
                     b.Property<string>("SideEffects")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("SourceName")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<string>("SourceUrl")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<DateTime?>("SubmittedAt")
                         .HasColumnType("datetime2");
@@ -234,7 +243,47 @@ namespace Project.Migrations
 
                     b.HasIndex("SubmittedByUserId");
 
+                    b.HasIndex("SourceName", "ExternalId")
+                        .IsUnique()
+                        .HasFilter("[ExternalId] IS NOT NULL");
+
+                    b.HasIndex("IsApproved", "ApprovalStatus", "RecallDate");
+
                     b.ToTable("DrugRecalls");
+                });
+
+            modelBuilder.Entity("Project.Models.RecallSyncLog", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ItemsFetched")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ItemsSaved")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Message")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<DateTime>("StartedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("RecallSyncLogs");
                 });
 
             modelBuilder.Entity("Project.Models.User", b =>
@@ -285,9 +334,7 @@ namespace Project.Migrations
 
                     b.HasOne("Project.Models.Company", "Company")
                         .WithMany("DrugRecalls")
-                        .HasForeignKey("CompanyId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CompanyId");
 
                     b.HasOne("Project.Models.User", "SubmittedByUser")
                         .WithMany()

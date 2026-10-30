@@ -8,6 +8,10 @@ public class HomeViewModel
 
     public int RecallCount { get; set; }
 
+    public int PendingRecallCount { get; set; }
+
+    public DateTime? LastRecallSyncAt { get; set; }
+
     public int NoticeCount { get; set; }
 
     public int ExportCapableCount { get; set; }
@@ -19,6 +23,8 @@ public class HomeViewModel
     public List<HomeCompany> FeaturedCompanies { get; set; } = new List<HomeCompany>();
 
     public List<DashboardRecall> RecentRecalls { get; set; } = new List<DashboardRecall>();
+
+    public List<DashboardRecall> RecentPendingRecalls { get; set; } = new List<DashboardRecall>();
 
     public List<DashboardNotice> RecentNotices { get; set; } = new List<DashboardNotice>();
 }

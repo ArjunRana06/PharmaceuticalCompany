@@ -8,5 +8,8 @@ public class RecallFeedItem
     public DateTime RecallDate { get; set; }
     public string? RecallLevel { get; set; }
     public string? SourceUrl { get; set; }
+    public string? SourceName { get; set; }
+    public string? ExternalId { get; set; }
+    public string? CompanyName { get; set; }
     public string? SideEffects { get; set; }
 }

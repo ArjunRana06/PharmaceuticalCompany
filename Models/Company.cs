@@ -15,16 +15,12 @@ public class Company
 
     public string? Phone { get; set; }
 
-    /// <summary>Export capability / distribution outside Nepal (from the DDA dataset).</summary>
     public string? ExportCapability { get; set; }
 
-    /// <summary>International recall search result (from the DDA dataset).</summary>
     public string? InternationalRecallRecords { get; set; }
 
-    /// <summary>Primary source used for the distribution / recall information.</summary>
     public string? SourceUrl { get; set; }
 
-    /// <summary>Number of documented recall events (dataset + additional DDA notices).</summary>
     public int DocumentedRecallEvents { get; set; }
 
     public ICollection<Drug> Drugs { get; set; } = new List<Drug>();

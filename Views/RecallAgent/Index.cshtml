@@ -1,0 +1,261 @@
+@using Project.Models
+@{
+    ViewData["Title"] = "AI Recall Agent";
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+    var result = Model as RecallAgentResult;
+    var enabled = (bool)(ViewBag.AgentEnabled ?? true);
+    var provider = ViewBag.Provider as string ?? "Ollama";
+    var modelName = ViewBag.Model as string ?? "qwen2.5-coder:3b";
+    var baseUrl = ViewBag.BaseUrl as string ?? "http://localhost:11434";
+    var riskClass = result?.RiskLevel?.ToLowerInvariant() switch
+    {
+        "high" => "is-danger",
+        "medium" => "is-warning",
+        "low" => "is-success",
+        _ => "is-muted"
+    };
+}
+
+<div class="ph-page-head">
+    <div>
+        <h2>AI recall agent</h2>
+        <p>Fetches the latest DDA and FDA recall data, saves it to the register, and asks an AI model to prioritize what needs review.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="ph-btn ph-btn-outline ph-btn-sm" asp-controller="RecallsSync" asp-action="Index">
+            <i class="bi bi-arrow-repeat"></i> Sync dashboard
+        </a>
+        <a class="ph-btn ph-btn-ghost ph-btn-sm" asp-controller="PublicRecalls" asp-action="Index">
+            <i class="bi bi-box-arrow-up-right"></i> Public register
+        </a>
+    </div>
+</div>
+
+<div class="ph-panel ph-reveal" style="margin-bottom:1.25rem;">
+    <div class="ph-panel-head">
+        <div>
+            <h3>Agent configuration</h3>
+            <p>Current model and data sources used by the agent</p>
+        </div>
+        <span class="ph-badge @(enabled ? "is-success" : "is-muted")">@(enabled ? "Enabled" : "Disabled")</span>
+    </div>
+    <div class="d-flex flex-wrap gap-4" style="font-size:.86rem;color:var(--ph-muted);">
+        <span><strong style="color:var(--ph-text);">Provider:</strong> @provider</span>
+        <span><strong style="color:var(--ph-text);">Model:</strong> @modelName</span>
+        <span><strong style="color:var(--ph-text);">Endpoint:</strong> @baseUrl</span>
+        <span><strong style="color:var(--ph-text);">Sources:</strong> DDA Nepal, US FDA</span>
+    </div>
+    <form asp-action="Run" method="post" class="d-flex flex-wrap align-items-center gap-3" style="margin-top:1.1rem;" id="agentForm">
+        @Html.AntiForgeryToken()
+        <button type="submit" class="ph-btn ph-btn-primary" id="agentRunButton" @(enabled ? "" : "disabled")>
+            <i class="bi bi-stars"></i> Run AI agent
+        </button>
+        <span style="color:var(--ph-muted);font-size:.86rem;">
+            The agent fetches fresh data, saves it, then runs the configured AI model for analysis.
+        </span>
+        <span id="agentRunning" class="ph-badge is-info" style="display:none;">
+            <i class="bi bi-arrow-repeat"></i> Agent running...
+        </span>
+    </form>
+</div>
+
+@if (result != null)
+{
+    <div class="ph-alert @(result.Success ? "is-success" : "is-warning") ph-reveal" style="margin-bottom:1.25rem;">
+        <i class="bi @(result.Success ? "bi-check2-circle" : "bi-exclamation-triangle")"></i>
+        <div>
+            <strong>@(result.Success ? "Agent run completed" : "Agent run needs attention")</strong>
+            @result.Message
+        </div>
+    </div>
+
+    <div class="ph-stats ph-reveal" style="margin-bottom:1.25rem;">
+        <div class="ph-stat">
+            <div class="ph-stat-top">
+                <span class="ph-stat-icon"><i class="bi bi-cloud-arrow-down"></i></span>
+            </div>
+            <div class="ph-stat-value">@result.FetchedCount</div>
+            <div class="ph-stat-label">Recalls fetched</div>
+        </div>
+        <div class="ph-stat">
+            <div class="ph-stat-top">
+                <span class="ph-stat-icon"><i class="bi bi-database-check"></i></span>
+            </div>
+            <div class="ph-stat-value">@result.SavedCount</div>
+            <div class="ph-stat-label">Saved to register</div>
+        </div>
+        <div class="ph-stat">
+            <div class="ph-stat-top">
+                <span class="ph-stat-icon"><i class="bi bi-cpu"></i></span>
+                <span class="ph-badge @(result.AiUsed ? "is-success" : "is-warning")">@(result.AiUsed ? "AI used" : "Fallback")</span>
+            </div>
+            <div class="ph-stat-value">@result.RiskLevel</div>
+            <div class="ph-stat-label">AI risk assessment</div>
+        </div>
+        <div class="ph-stat">
+            <div class="ph-stat-top">
+                <span class="ph-stat-icon"><i class="bi bi-clock-history"></i></span>
+            </div>
+            <div class="ph-stat-value" style="font-size:1.2rem;">@result.RunAt.ToString("dd MMM HH:mm")</div>
+            <div class="ph-stat-label">Last agent run</div>
+        </div>
+    </div>
+
+    <div class="ph-panel ph-reveal" style="margin-bottom:1.25rem;">
+        <div class="ph-panel-head">
+            <div>
+                <h3>AI analysis</h3>
+                <p>@result.Provider / @result.Model</p>
+            </div>
+            <span class="ph-badge @riskClass">@result.RiskLevel</span>
+        </div>
+        <p style="line-height:1.7;margin-bottom:.85rem;">@result.Summary</p>
+        @if (!string.IsNullOrWhiteSpace(result.RecommendedAction))
+        {
+            <div class="ph-alert is-info" style="margin-bottom:0;">
+                <i class="bi bi-lightbulb"></i>
+                <div>
+                    <strong>Recommended action</strong>
+                    @result.RecommendedAction
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (result.Highlights.Any())
+    {
+        <div class="ph-table-wrap ph-reveal" style="margin-bottom:1.25rem;">
+            <div class="ph-table-head">
+                <div>
+                    <h3>Priority recalls</h3>
+                    <p>Items the AI recommends reviewing first</p>
+                </div>
+                <span class="ph-badge is-info">@result.Highlights.Count</span>
+            </div>
+            <div class="table-responsive">
+                <table class="ph-table">
+                    <thead>
+                        <tr>
+                            <th>Medicine</th>
+                            <th>Company</th>
+                            <th>Source</th>
+                            <th>Date</th>
+                            <th>Reason</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var highlight in result.Highlights)
+                        {
+                            <tr>
+                                <td><strong>@highlight.DrugName</strong></td>
+                                <td>@(string.IsNullOrWhiteSpace(highlight.Company) ? "—" : highlight.Company)</td>
+                                <td><span class="ph-badge is-muted">@(highlight.SourceName ?? "—")</span></td>
+                                <td>@(highlight.RecallDate?.ToString("dd MMM yyyy") ?? "—")</td>
+                                <td style="max-width:420px;font-size:.82rem;">@highlight.Reason</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    }
+
+    <div class="ph-table-wrap ph-reveal">
+        <div class="ph-table-head">
+            <div>
+                <h3>Latest fetched records</h3>
+                <p>Most recent records returned by the public sources</p>
+            </div>
+            <span class="ph-badge is-info">@result.Items.Count</span>
+        </div>
+        <div class="table-responsive">
+            <table class="ph-table">
+                <thead>
+                    <tr>
+                        <th>Medicine</th>
+                        <th>Company</th>
+                        <th>Source</th>
+                        <th>Date</th>
+                        <th>Level</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (result.Items.Any())
+                    {
+                        @foreach (var item in result.Items)
+                        {
+                            <tr>
+                                <td><strong>@item.DrugName</strong></td>
+                                <td>@(string.IsNullOrWhiteSpace(item.Company) ? "—" : item.Company)</td>
+                                <td><span class="ph-badge is-muted">@(item.SourceName ?? "—")</span></td>
+                                <td>@item.RecallDate.ToString("dd MMM yyyy")</td>
+                                <td>@(string.IsNullOrWhiteSpace(item.RecallLevel) ? "—" : item.RecallLevel)</td>
+                                <td>
+                                    @if (!string.IsNullOrWhiteSpace(item.SourceUrl))
+                                    {
+                                        <a class="ph-btn ph-btn-outline ph-btn-sm" href="@item.SourceUrl" target="_blank" rel="noopener">
+                                            <i class="bi bi-box-arrow-up-right"></i> Source
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span style="color:var(--ph-muted);">—</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6">
+                                <div class="ph-empty">
+                                    <i class="bi bi-inbox"></i>
+                                    <h4>No records returned</h4>
+                                    <p class="mb-0">Try running the agent again.</p>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @if (result.SourceCounts.Any())
+    {
+        <div class="d-flex flex-wrap gap-2 ph-reveal" style="margin-top:1rem;">
+            @foreach (var source in result.SourceCounts)
+            {
+                <span class="ph-badge is-info">@source.Key: @source.Value</span>
+            }
+        </div>
+    }
+}
+else
+{
+    <div class="ph-panel ph-reveal">
+        <div class="ph-empty">
+            <i class="bi bi-stars"></i>
+            <h4>No agent run yet</h4>
+            <p class="mb-0">Run the AI agent to fetch the latest recalls and generate a prioritized review summary.</p>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script>
+        document.getElementById('agentForm')?.addEventListener('submit', function () {
+            const button = document.getElementById('agentRunButton');
+            const status = document.getElementById('agentRunning');
+            if (button) {
+                button.disabled = true;
+                button.innerHTML = '<i class="bi bi-arrow-repeat"></i> Running...';
+            }
+            if (status) {
+                status.style.display = 'inline-flex';
+            }
+        });
+    </script>
+}

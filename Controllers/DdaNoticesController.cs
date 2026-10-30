@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Project.Data;
@@ -19,7 +18,7 @@ public class DdaNoticesController : Controller
 
     public async Task<IActionResult> Index(string? search, string? type)
     {
-        var notices = _context.DdaNotices.AsQueryable();
+        var notices = _context.DdaNotices.AsNoTracking();
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -40,7 +39,7 @@ public class DdaNoticesController : Controller
 
         ViewBag.Search = search;
         ViewBag.Type = type;
-        ViewBag.Types = await _context.DdaNotices
+        ViewBag.Types = await _context.DdaNotices.AsNoTracking()
             .Where(n => n.NoticeType != null)
             .Select(n => n.NoticeType!)
             .Distinct()

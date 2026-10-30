@@ -6,6 +6,7 @@ public class DrugRecall
 {
     public int Id { get; set; }
 
+    [Required]
     public string DrugName { get; set; } = string.Empty;
 
     public string? SideEffects { get; set; }
@@ -20,14 +21,20 @@ public class DrugRecall
 
     public string? RecallLevel { get; set; }
 
+    [MaxLength(500)]
     public string? SourceUrl { get; set; }
 
-    public int CompanyId { get; set; }
+    [MaxLength(50)]
+    public string? SourceName { get; set; }
+
+    [MaxLength(100)]
+    public string? ExternalId { get; set; }
+
+    public int? CompanyId { get; set; }
 
     public Company? Company { get; set; }
 
-    // Approval workflow
-    public bool IsApproved { get; set; } = false;
+    public bool IsApproved { get; set; }
 
     public string ApprovalStatus { get; set; } = "Pending";
 
