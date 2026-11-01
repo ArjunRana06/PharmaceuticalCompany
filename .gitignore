@@ -6,6 +6,7 @@ obj/
 *.user
 *.suo
 *.bak
+!PharmaceuticalCompany.bak
 *.log
 .DS_Store
 appsettings.*.local.json
