@@ -40,10 +40,10 @@
         <span class="ph-badge @(enabled ? "is-success" : "is-muted")">@(enabled ? "Enabled" : "Disabled")</span>
     </div>
     <div class="d-flex flex-wrap gap-4" style="font-size:.86rem;color:var(--ph-muted);">
-        <span><strong style="color:var(--ph-text);">Provider:</strong> @provider</span>
-        <span><strong style="color:var(--ph-text);">Model:</strong> @modelName</span>
-        <span><strong style="color:var(--ph-text);">Endpoint:</strong> @baseUrl</span>
-        <span><strong style="color:var(--ph-text);">Sources:</strong> DDA Nepal, US FDA</span>
+        <span><strong style="color:var(--ph-ink);">Provider:</strong> @provider</span>
+        <span><strong style="color:var(--ph-ink);">Model:</strong> @modelName</span>
+        <span><strong style="color:var(--ph-ink);">Endpoint:</strong> @baseUrl</span>
+        <span><strong style="color:var(--ph-ink);">Sources:</strong> DDA Nepal, US FDA</span>
     </div>
     <form asp-action="Run" method="post" class="d-flex flex-wrap align-items-center gap-3" style="margin-top:1.1rem;" id="agentForm">
         @Html.AntiForgeryToken()
