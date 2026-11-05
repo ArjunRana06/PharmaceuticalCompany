@@ -212,6 +212,7 @@ public class RecallSyncService : IRecallSyncService
         }
 
         var client = _httpClientFactory.CreateClient();
+        client.Timeout = TimeSpan.FromSeconds(30);
         client.DefaultRequestHeaders.UserAgent.ParseAdd("PharmaCore-RecallSync/1.0");
 
         string? json = null;

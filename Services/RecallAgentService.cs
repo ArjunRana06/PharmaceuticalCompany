@@ -196,6 +196,12 @@ public class RecallAgentService : IRecallAgentService
         var client = _httpClientFactory.CreateClient();
         client.Timeout = TimeSpan.FromSeconds(Math.Clamp(timeout, 10, 300));
 
+        var maxOutputTokens = _configuration.GetValue("RecallAgent:MaxOutputTokens", 300);
+        var configuredThreads = _configuration.GetValue("RecallAgent:NumThread", 0);
+        var numThread = configuredThreads > 0
+            ? configuredThreads
+            : Math.Clamp(Environment.ProcessorCount / 2, 1, 8);
+
         var request = new
         {
             model,
@@ -205,9 +211,9 @@ public class RecallAgentService : IRecallAgentService
             options = new
             {
                 temperature = 0.2,
-                num_predict = 450,
+                num_predict = Math.Clamp(maxOutputTokens, 100, 800),
                 num_ctx = 2048,
-                num_thread = Math.Max(1, Environment.ProcessorCount)
+                num_thread = numThread
             },
             messages = new object[]
             {
@@ -250,11 +256,12 @@ public class RecallAgentService : IRecallAgentService
         var client = _httpClientFactory.CreateClient();
         client.Timeout = TimeSpan.FromSeconds(Math.Clamp(timeout, 10, 300));
 
+        var maxOutputTokens = _configuration.GetValue("RecallAgent:MaxOutputTokens", 300);
         var request = new
         {
             model,
             temperature = 0.2,
-            max_tokens = 450,
+            max_tokens = Math.Clamp(maxOutputTokens, 100, 800),
             response_format = new { type = "json_object" },
             messages = new object[]
             {

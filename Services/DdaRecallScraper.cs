@@ -7,8 +7,13 @@ namespace Project.Services;
 public class DdaRecallScraper
 {
     private static readonly Regex ContentLinkRegex = new(
-        "<a[^>]+href=\"(?<href>/content/(?<id>\\d+)/[^\"]+)\"[^>]*>(?<text>.*?)</a>",
+        "<a[^>]+href\\s*=\\s*[\"'](?<href>(?:https?://[^\"']+)?/?content/(?<id>\\d+)/[^\"']*)[\"'][^>]*>(?<text>.*?)</a>",
         RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled);
+
+    private static readonly string[] RecallKeywords =
+    {
+        "recall", "फिर्ता", "withdraw", "alert", "ban", "unsafe", "quality", "not of standard"
+    };
 
     private static readonly Regex TagRegex = new("<[^>]+>", RegexOptions.Compiled);
     private static readonly Regex WhitespaceRegex = new("\\s+", RegexOptions.Compiled);
@@ -62,8 +67,8 @@ public class DdaRecallScraper
                 continue;
             }
 
-            if (!title.Contains("recall", StringComparison.OrdinalIgnoreCase) &&
-                !title.Contains("फिर्ता", StringComparison.Ordinal))
+            if (!RecallKeywords.Any(keyword =>
+                    title.Contains(keyword, StringComparison.OrdinalIgnoreCase)))
             {
                 continue;
             }
@@ -99,6 +104,7 @@ public class DdaRecallScraper
     private async Task<string?> GetStringWithRetryAsync(string url, CancellationToken cancellationToken)
     {
         var client = _httpClientFactory.CreateClient();
+        client.Timeout = TimeSpan.FromSeconds(30);
         client.DefaultRequestHeaders.UserAgent.ParseAdd("PharmaCore-RecallSync/1.0");
 
         for (var attempt = 1; attempt <= 3; attempt++)
@@ -149,15 +155,27 @@ public class DdaRecallScraper
             return null;
         }
 
-        if (bsYear == 2082)
+        var starts = bsYear switch
         {
-            var starts = new[]
+            2082 => new[]
             {
                 new DateTime(2025, 4, 14), new DateTime(2025, 5, 15), new DateTime(2025, 6, 15),
                 new DateTime(2025, 7, 17), new DateTime(2025, 8, 17), new DateTime(2025, 9, 17),
                 new DateTime(2025, 10, 18), new DateTime(2025, 11, 17), new DateTime(2025, 12, 16),
                 new DateTime(2026, 1, 15), new DateTime(2026, 2, 13), new DateTime(2026, 3, 15)
-            };
+            },
+            2083 => new[]
+            {
+                new DateTime(2026, 4, 14), new DateTime(2026, 5, 15), new DateTime(2026, 6, 15),
+                new DateTime(2026, 7, 17), new DateTime(2026, 8, 17), new DateTime(2026, 9, 17),
+                new DateTime(2026, 10, 18), new DateTime(2026, 11, 17), new DateTime(2026, 12, 16),
+                new DateTime(2027, 1, 15), new DateTime(2027, 2, 13), new DateTime(2027, 3, 15)
+            },
+            _ => null
+        };
+
+        if (starts != null)
+        {
             return starts[bsMonth - 1].AddDays(bsDay - 1);
         }
 

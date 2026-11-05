@@ -1,0 +1,13 @@
+bin/
+obj/
+.git/
+.gitignore
+.vs/
+.idea/
+.vscode/
+*.user
+*.suo
+*.log
+*.bak
+appsettings.Development.json
+appsettings.*.local.json
